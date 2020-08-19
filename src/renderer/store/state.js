@@ -1,36 +1,67 @@
 
 // const isDev = process.env.NODE_ENV === 'development'
 import Store from 'electron-store'
-import { updateSetting } from '../utils'
 import { windowSizeList } from '../../common/config'
 import { version } from '../../../package.json'
-const electronStore_list = window.electronStore_list = new Store({
-  name: 'playList',
-})
+import { rendererSend, rendererInvoke, NAMES } from '../../common/ipc'
+import languageList from '@/lang/languages.json'
+import path from 'path'
+import { openDirInExplorer } from '../utils'
+
+
 const electronStore_config = window.electronStore_config = new Store({
   name: 'config',
 })
-if (!electronStore_config.get('version') && electronStore_config.get('setting')) { // 迁移配置
-  electronStore_config.set('version', electronStore_config.get('setting.version'))
-  electronStore_config.delete('setting.version')
-  const list = electronStore_config.get('list')
-  if (list) {
-    if (list.defaultList) electronStore_list.set('defaultList', list.defaultList)
-    if (list.loveList) electronStore_list.set('loveList', list.loveList)
-    electronStore_config.delete('list')
-  }
-  const downloadList = electronStore_config.get('download')
-  if (downloadList) {
-    if (downloadList.list) electronStore_list.set('downloadList', downloadList.list)
-    electronStore_config.delete('download')
-  }
-}
-const { version: settingVersion, setting } = updateSetting(electronStore_config.get('setting'), electronStore_config.get('version'))
-electronStore_config.set('version', settingVersion)
-electronStore_config.set('setting', setting)
+let setting = electronStore_config.get('setting')
+let settingVersion = electronStore_config.get('version')
+
 process.versions.app = version
 
+// Set language automatically
+if (!window.i18n.availableLocales.includes(setting.langId)) {
+  let langId = null
+  let locale = window.navigator.language.toLocaleLowerCase()
+  if (window.i18n.availableLocales.includes(locale)) {
+    langId = locale
+  } else {
+    for (const lang of languageList) {
+      if (lang.alternate == locale) {
+        langId = lang.locale
+        break
+      }
+    }
+    if (langId == null) langId = 'en-us'
+  }
+  setting.langId = langId
+  electronStore_config.set('setting', setting)
+  rendererSend(NAMES.mainWindow.set_app_setting, setting)
+  console.log('Set lang', setting.langId)
+}
+
 window.i18n.locale = setting.langId
+
+try {
+  window.electronStore_list = new Store({
+    name: 'playList',
+    clearInvalidConfig: false,
+  })
+} catch (error) {
+  rendererInvoke(NAMES.mainWindow.get_data_path).then(dataPath => {
+    let filePath = path.join(dataPath, 'playList.json.bak')
+    rendererInvoke(NAMES.mainWindow.show_dialog, {
+      type: 'error',
+      message: window.i18n.t('store.state.load_list_file_error_title'),
+      detail: window.i18n.t('store.state.load_list_file_error_detail', {
+        path: filePath,
+        detail: error.message,
+      }),
+    }).then(() => openDirInExplorer(filePath))
+  })
+  window.electronStore_list = new Store({
+    name: 'playList',
+  })
+}
+
 
 export default {
   themes: [
@@ -78,6 +109,11 @@ export default {
       id: 11,
       name: '青出于黑',
       class: 'ming',
+    },
+    {
+      id: 12,
+      name: '青出于黑',
+      class: 'blue2',
     },
     {
       id: 7,

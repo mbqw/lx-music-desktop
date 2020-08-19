@@ -24,9 +24,6 @@ export default {
     if (sortId != null) state.setting.songList.sortId = sortId
     if (source != null) state.setting.songList.source = source
   },
-  setListScroll(state, { id, location }) {
-    state.setting.list.scroll.locations[id] = location
-  },
   setNewVersion(state, val) {
     state.version.newVersion = val
   },
@@ -34,21 +31,31 @@ export default {
     state.version.downloadProgress = info
   },
   setVersionModalVisible(state, { isShow, isError, isDownloaded, isTimeOut, isDownloading, isUnknow, isLatestVer }) {
-    if (isShow !== undefined) state.version.showModal = isShow
     if (isError !== undefined) state.version.isError = isError
     if (isTimeOut !== undefined) state.version.isTimeOut = isTimeOut
     if (isDownloading !== undefined) state.version.isDownloading = isDownloading
     if (isDownloaded !== undefined) state.version.isDownloaded = isDownloaded
     if (isUnknow !== undefined) state.version.isUnknow = isUnknow
     if (isLatestVer !== undefined) state.version.isLatestVer = isLatestVer
+    if (isShow !== undefined) state.version.showModal = isShow
   },
   setIgnoreVersion(state, version) {
     state.setting.ignoreVersion = version
   },
   setVolume(state, val) {
-    state.setting.player.volume = val
+    if (typeof val == 'boolean') {
+      state.setting.player.isMute = val
+    } else {
+      state.setting.player.volume = val
+    }
   },
   setMediaDeviceId(state, val) {
     state.setting.player.mediaDeviceId = val
+  },
+  setPrevSelectListId(state, val) {
+    state.setting.list.prevSelectListId = val
+  },
+  setDesktopLyricConfig(state, config) {
+    state.setting.desktopLyric = Object.assign(state.setting.desktopLyric, config)
   },
 }

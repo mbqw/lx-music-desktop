@@ -68,7 +68,7 @@ const getStartTask = (list, downloadStatus, maxDownloadNum) => {
   let downloadCount = 0
   const waitList = list.filter(item => item.status == downloadStatus.WAITING ? true : (item.status === downloadStatus.RUN && ++downloadCount && false))
   // console.log(downloadCount, waitList)
-  return downloadCount < maxDownloadNum && waitList.length > 0 && waitList.shift()
+  return downloadCount < maxDownloadNum ? waitList.shift() || null : false
 }
 
 const awaitRequestAnimationFrame = () => new Promise(resolve => window.requestAnimationFrame(() => resolve()))
@@ -164,25 +164,33 @@ const getUrl = (downloadInfo, isRefresh) => {
  * @param {*} filePath
  * @param {*} isEmbedPic // 是否嵌入图片
  */
-const saveMeta = (downloadInfo, filePath, isEmbedPic) => {
+const saveMeta = (downloadInfo, filePath, isEmbedPic, isEmbedLyric) => {
   if (downloadInfo.type === 'ape') return
-  const promise = isEmbedPic
-    ? downloadInfo.musicInfo.img
-      ? Promise.resolve(downloadInfo.musicInfo.img)
-      : music[downloadInfo.musicInfo.source].getPic(downloadInfo.musicInfo).promise
-    : Promise.resolve()
-  promise.then(url => {
+  const tasks = [
+    isEmbedPic
+      ? downloadInfo.musicInfo.img
+        ? Promise.resolve(downloadInfo.musicInfo.img)
+        : music[downloadInfo.musicInfo.source].getPic(downloadInfo.musicInfo).promise.catch(err => {
+          console.log(err)
+          return null
+        })
+      : Promise.resolve(),
+    isEmbedLyric
+      ? downloadInfo.musicInfo.lrc
+        ? Promise.resolve(downloadInfo.musicInfo.lrc)
+        : music[downloadInfo.musicInfo.source].getLyric(downloadInfo.musicInfo).promise.catch(err => {
+          console.log(err)
+          return null
+        })
+      : Promise.resolve(),
+  ]
+  Promise.all(tasks).then(([imgUrl, lyrics]) => {
     setMeta(filePath, {
       title: downloadInfo.musicInfo.name,
       artist: downloadInfo.musicInfo.singer,
       album: downloadInfo.musicInfo.albumName,
-      APIC: url,
-    })
-  }).catch(() => {
-    setMeta(filePath, {
-      title: downloadInfo.musicInfo.name,
-      artist: downloadInfo.musicInfo.singer,
-      album: downloadInfo.musicInfo.albumName,
+      APIC: imgUrl,
+      lyrics,
     })
   })
 }
@@ -311,7 +319,7 @@ const actions = {
         commit('onCompleted', downloadInfo)
         dispatch('startTask')
 
-        saveMeta(downloadInfo, downloadInfo.filePath, rootState.setting.download.isEmbedPic)
+        saveMeta(downloadInfo, downloadInfo.filePath, rootState.setting.download.isEmbedPic, rootState.setting.download.isEmbedLyric)
         if (rootState.setting.download.isDownloadLrc) downloadLyric(downloadInfo, downloadInfo.filePath)
         console.log('on complate')
       },
@@ -409,11 +417,14 @@ const actions = {
   async startTask({ state, rootState, commit, dispatch }, downloadInfo) {
     // 检查是否可以开始任务
     let result = getStartTask(state.list, state.downloadStatus, rootState.setting.download.maxDownloadNum)
-    if (result) {
-      if (!downloadInfo || downloadInfo.isComplate || downloadInfo.status == state.downloadStatus.RUN) downloadInfo = result
+    if (downloadInfo && !downloadInfo.isComplate && downloadInfo.status != state.downloadStatus.RUN) {
+      if (result === false) {
+        commit('setStatus', { downloadInfo, status: state.downloadStatus.WAITING })
+        return
+      }
     } else {
-      if (downloadInfo) commit('setStatus', { downloadInfo, status: state.downloadStatus.WAITING })
-      return
+      if (!result) return
+      downloadInfo = result
     }
 
     let dl = dls[downloadInfo.key]

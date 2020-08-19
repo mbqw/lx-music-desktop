@@ -127,8 +127,8 @@ material-modal(:show="version.showModal" @close="handleClose" v-if="version.newV
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import { rendererSend } from '../../../common/ipc'
-import { checkVersion, openUrl, clipboardWriteText, sizeFormate } from '../../utils'
+import { rendererSend, NAMES } from '../../../common/ipc'
+import { compareVer, openUrl, clipboardWriteText, sizeFormate } from '../../utils'
 
 export default {
   computed: {
@@ -138,7 +138,7 @@ export default {
       let arr = []
       let currentVer = this.version.version
       this.version.newVersion.history.forEach(ver => {
-        if (checkVersion(currentVer, ver.version)) arr.push(ver)
+        if (compareVer(currentVer, ver.version) < 0) arr.push(ver)
       })
 
       return arr
@@ -165,7 +165,7 @@ export default {
     handleRestartClick(event) {
       this.handleClose()
       event.target.disabled = true
-      rendererSend('quit-update')
+      rendererSend(NAMES.mainWindow.quit_update)
     },
     handleCopy(text) {
       clipboardWriteText(text)
