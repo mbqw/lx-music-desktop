@@ -1,7 +1,13 @@
 import fs from 'fs'
+import path from 'path'
 import { shell, clipboard } from 'electron'
 import crypto from 'crypto'
-import { rendererSend, rendererInvoke, NAMES } from '../../common/ipc'
+import { rendererSend, rendererInvoke, NAMES } from '@common/ipc'
+import { log } from '@common/utils'
+import iconv from 'iconv-lite'
+import { gzip, gunzip } from 'zlib'
+import { proxy, qualityList } from '@renderer/core/share'
+
 
 /**
  * 获取两个数之间的随机整数，大于等于min，小于max
@@ -17,6 +23,39 @@ export const sizeFormate = size => {
   let units = ['B', 'KB', 'MB', 'GB', 'TB']
   let number = Math.floor(Math.log(size) / Math.log(1024))
   return `${(size / Math.pow(1024, Math.floor(number))).toFixed(2)} ${units[number]}`
+}
+
+/**
+  * 日期格式化
+  * @param {*} date 时间
+  * @param {String} format 时间格式，默认YYYY-MM-DD hh:mm:ss
+  */
+export const dateFormat = (date = new Date(), format = 'YYYY-MM-DD hh:mm:ss') => {
+  if (typeof date != 'object') date = new Date(date)
+  const munFix = (n) => n < 10 ? ('0' + n) : n
+  return format
+    .replace('YYYY', date.getFullYear())
+    .replace('MM', munFix(date.getMonth() + 1))
+    .replace('DD', munFix(date.getDate()))
+    .replace('hh', munFix(date.getHours()))
+    .replace('mm', munFix(date.getMinutes()))
+    .replace('ss', munFix(date.getSeconds()))
+}
+
+/**
+ * 时间格式化
+ */
+export const dateFormat2 = time => {
+  let differ = parseInt((Date.now() - time) / 1000)
+  if (differ < 60) {
+    return window.i18n.t('date_format_second', { num: differ })
+  } else if (differ < 3600) {
+    return window.i18n.t('date_format_minute', { num: parseInt(differ / 60) })
+  } else if (differ < 86400) {
+    return window.i18n.t('date_format_hour', { num: parseInt(differ / 3600) })
+  } else {
+    return dateFormat(time)
+  }
 }
 
 export const formatPlayTime = time => {
@@ -44,8 +83,9 @@ const encodeNames = {
   '&gt;': '>',
   '&quot;': '"',
   '&apos;': "'",
+  '&#039;': "'",
 }
-export const decodeName = str => str.replace(/(?:&amp;|&lt;|&gt;|&quot;|&apos;)/g, s => encodeNames[s])
+export const decodeName = (str = '') => str?.replace(/(?:&amp;|&lt;|&gt;|&quot;|&apos;|&#039;)/gm, s => encodeNames[s]) || ''
 
 const easeInOutQuad = (t, b, c, d) => {
   t /= d / 2
@@ -98,7 +138,7 @@ const handleScroll = (element, to, duration = 300, fn = () => {}) => {
  * @param {*} fn 滚动完成后的回调
  * @param {*} delay 延迟执行时间
  */
-export const scrollTo = (element, to, duration = 300, fn = () => {}, delay) => {
+export const scrollTo = (element, to, duration = 300, fn = () => {}, delay = 0) => {
   let cancelFn
   let timeout
   if (delay) {
@@ -197,6 +237,7 @@ export const objectDeepMerge = (target, source, mergedObj) => {
  * @param {*} url
  */
 export const openUrl = url => {
+  if (!/^https?:\/\//.test(url)) return
   shell.openExternal(url)
 }
 
@@ -240,11 +281,22 @@ export const setMeta = (filePath, meta) => {
  * 保存歌词文件
  * @param {*} filePath
  * @param {*} lrc
+ * @param {*} format
  */
-export const saveLrc = (filePath, lrc) => {
-  fs.writeFile(filePath, lrc, 'utf8', err => {
-    if (err) console.log(err)
-  })
+export const saveLrc = (filePath, lrc, format) => {
+  switch (format) {
+    case 'gbk':
+      fs.writeFile(filePath, iconv.encode(lrc, 'gbk', { addBOM: true }), err => {
+        if (err) console.log(err)
+      })
+      break
+    case 'utf8':
+    default:
+      fs.writeFile(filePath, lrc, 'utf8', err => {
+        if (err) console.log(err)
+      })
+      break
+  }
 }
 
 /**
@@ -335,9 +387,110 @@ export const clearCache = () => rendererInvoke(NAMES.mainWindow.clear_cache)
 export const setWindowSize = (width, height) => rendererSend(NAMES.mainWindow.set_window_size, { width, height })
 
 
-export const getProxyInfo = () => window.globalObj.proxy.enable
-  ? `http://${window.globalObj.proxy.username}:${window.globalObj.proxy.password}@${window.globalObj.proxy.host}:${window.globalObj.proxy.port};`
+export const getProxyInfo = () => proxy.enable && proxy.host
+  ? `http://${proxy.username}:${proxy.password}@${proxy.host}:${proxy.port};`
   : undefined
 
 
-export const assertApiSupport = source => window.globalObj.qualityList[source] != undefined
+export const assertApiSupport = source => qualityList.value[source] != undefined
+
+export const getSetting = () => rendererInvoke(NAMES.mainWindow.get_setting)
+export const saveSetting = setting => rendererInvoke(NAMES.mainWindow.set_app_setting, setting)
+
+export const getPlayList = () => rendererInvoke(NAMES.mainWindow.get_playlist).catch(error => {
+  rendererInvoke(NAMES.mainWindow.get_data_path).then(dataPath => {
+    let filePath = path.join(dataPath, 'playList.json.bak')
+    rendererInvoke(NAMES.mainWindow.show_dialog, {
+      type: 'error',
+      message: window.i18n.t('load_list_file_error_title'),
+      detail: window.i18n.t('load_list_file_error_detail', {
+        path: filePath,
+        detail: error.message,
+      }),
+    }).then(() => openDirInExplorer(filePath))
+  })
+  return rendererInvoke(NAMES.mainWindow.get_playlist, true)
+})
+
+// 解析URL参数为对象
+export const parseUrlParams = str => {
+  const params = {}
+  if (typeof str !== 'string') return params
+  const paramsArr = str.split('&')
+  for (const param of paramsArr) {
+    let [key, value] = param.split('=')
+    params[key] = value
+  }
+  return params
+}
+
+export const getLyric = musicInfo => rendererInvoke(NAMES.mainWindow.get_lyric, `${musicInfo.source}_${musicInfo.songmid}`)
+export const setLyric = (musicInfo, { lyric, tlyric, lxlyric }) => rendererSend(NAMES.mainWindow.save_lyric, {
+  id: `${musicInfo.source}_${musicInfo.songmid}`,
+  lyrics: { lyric, tlyric, lxlyric },
+})
+export const clearLyric = () => rendererSend(NAMES.mainWindow.clear_lyric)
+
+export const getMusicUrl = (musicInfo, type) => rendererInvoke(NAMES.mainWindow.get_music_url, `${musicInfo.source}_${musicInfo.songmid}_${type}`)
+export const setMusicUrl = (musicInfo, type, url) => rendererSend(NAMES.mainWindow.save_music_url, {
+  id: `${musicInfo.source}_${musicInfo.songmid}_${type}`,
+  url,
+})
+export const clearMusicUrl = () => rendererSend(NAMES.mainWindow.clear_music_url)
+
+export const gzipData = str => {
+  return new Promise((resolve, reject) => {
+    gzip(str, (err, result) => {
+      if (err) return reject(err)
+      resolve(result)
+    })
+  })
+}
+export const gunzipData = buf => {
+  return new Promise((resolve, reject) => {
+    gunzip(buf, (err, result) => {
+      if (err) return reject(err)
+      resolve(result.toString())
+    })
+  })
+}
+
+export const saveLxConfigFile = async(path, data) => {
+  if (!path.endsWith('.lxmc')) path += '.lxmc'
+  fs.writeFile(path, await gzipData(JSON.stringify(data)), 'binary', err => {
+    console.log(err)
+  })
+}
+
+export const readLxConfigFile = async path => {
+  let isJSON = path.endsWith('.json')
+  let data = await fs.promises.readFile(path, isJSON ? 'utf8' : 'binary')
+  if (!data || isJSON) return data
+  data = await gunzipData(Buffer.from(data, 'binary'))
+  data = JSON.parse(data.toString('utf8'))
+
+  // 修复v1.14.0出现的导出数据被序列化两次的问题
+  if (typeof data != 'object') {
+    try {
+      data = JSON.parse(data)
+    } catch (err) {
+      return data
+    }
+  }
+
+  return data
+}
+
+export const saveStrToFile = (path, str) => new Promise((resolve, reject) => {
+  fs.writeFile(path, str, err => {
+    if (err) {
+      log.error(err)
+      reject(err)
+      return
+    }
+    resolve()
+  })
+})
+
+const fileNameRxp = /[\\/:*?#"<>|]/g
+export const filterFileName = name => name.replace(fileNameRxp, '')

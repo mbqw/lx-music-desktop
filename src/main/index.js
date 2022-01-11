@@ -4,7 +4,7 @@ const path = require('path')
 // 单例应用程序
 if (!app.requestSingleInstanceLock()) {
   app.quit()
-  return
+  process.exit(0)
 }
 if (!global.modules) global.modules = {}
 app.on('second-instance', (event, argv, cwd) => {
@@ -24,18 +24,29 @@ app.on('second-instance', (event, argv, cwd) => {
 
 const isDev = global.isDev = process.env.NODE_ENV !== 'production'
 require('./env')
-const { navigationUrlWhiteList } = require('../common/config')
-const { getWindowSizeInfo } = require('./utils')
-const { isMac, isLinux, initSetting, initHotKey } = require('../common/utils')
+// console.log(global.envParams.cmdParams)
 
+// Is disable hardware acceleration
+if (global.envParams.cmdParams.dha) app.disableHardwareAcceleration()
+
+if (global.envParams.cmdParams.dt == null && global.envParams.cmdParams.nt != null) global.envParams.cmdParams.dt = global.envParams.cmdParams.nt
+if (global.envParams.cmdParams.dhmkh) app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling')
+// fix linux transparent fail. https://github.com/electron/electron/issues/25153#issuecomment-843688494
+if (process.platform == 'linux') app.commandLine.appendSwitch('use-gl', 'desktop')
 
 // https://github.com/electron/electron/issues/22691
 app.commandLine.appendSwitch('wm-window-animations-disabled')
 
+
+const { navigationUrlWhiteList, themes } = require('../common/config')
+const { getWindowSizeInfo, initSetting, updateSetting } = require('./utils')
+const { isMac, isLinux, initHotKey } = require('../common/utils')
+
+
 // https://github.com/electron/electron/issues/18397
 // 开发模式下为true时 多次引入native模块会导致渲染进程卡死
 // https://github.com/electron/electron/issues/22791
-app.allowRendererProcessReuse = !isDev
+// app.allowRendererProcessReuse = !isDev
 
 
 app.on('web-contents-created', (event, contents) => {
@@ -44,11 +55,12 @@ app.on('web-contents-created', (event, contents) => {
     if (!navigationUrlWhiteList.some(url => url.test(navigationUrl))) return event.preventDefault()
     console.log('navigation to url:', navigationUrl)
   })
-  contents.on('new-window', async(event, navigationUrl) => {
-    event.preventDefault()
-    if (/^devtools/.test(navigationUrl)) return
-    console.log(navigationUrl)
-    await shell.openExternal(navigationUrl)
+  contents.setWindowOpenHandler(({ url }) => {
+    if (!/^devtools/.test(url) && /^https?:\/\//.test(url)) {
+      shell.openExternal(url)
+    }
+    console.log(url)
+    return { action: 'deny' }
   })
   contents.on('will-attach-webview', (event, webPreferences, params) => {
     // Strip away preload scripts if unused or verify their location is legitimate
@@ -82,7 +94,7 @@ if (isDev) {
   winURL = 'http://localhost:9080'
 } else {
   global.__static = path.join(__dirname, '/static')
-  winURL = `file://${__dirname}/index.html`
+  winURL = `file://${path.join(__dirname, 'index.html')}`
 }
 
 function createWindow() {
@@ -95,7 +107,7 @@ function createWindow() {
     useContentSize: true,
     width: windowSizeInfo.width,
     frame: false,
-    transparent: !isLinux && !global.envParams.nt,
+    transparent: !global.envParams.cmdParams.dt,
     enableRemoteModule: false,
     // icon: path.join(global.__static, isWin ? 'icons/256x256.ico' : 'icons/512x512.png'),
     resizable: false,
@@ -103,13 +115,14 @@ function createWindow() {
     fullscreenable: false,
     show: false,
     webPreferences: {
-      // contextIsolation: true,
+      contextIsolation: false,
       webSecurity: !isDev,
       nodeIntegration: true,
+      spellcheck: false, // 禁用拼写检查器
     },
   })
 
-  global.modules.mainWindow.loadURL(winURL)
+  global.modules.mainWindow.loadURL(winURL + `?dt=${!!global.envParams.cmdParams.dt}&theme=${themes.find(t => t.id == global.appSetting.themeId)?.className ?? themes[0].className}`)
 
   winEvent(global.modules.mainWindow)
   // global.modules.mainWindow.webContents.openDevTools()
@@ -123,15 +136,24 @@ global.appHotKey = {
   state: null,
 }
 
+global.lx_core = {
+  setAppConfig(setting, name) {
+    updateSetting(setting)
+    global.lx_event.common.configStatus(name)
+  },
+}
+
 function init() {
-  global.appSetting = initSetting()
+  console.log('init')
+  initSetting()
   global.appHotKey.config = initHotKey()
   global.lx_event.common.initSetting()
   global.lx_event.hotKey.init()
   createWindow()
 }
 
-app.on('ready', init)
+// https://github.com/electron/electron/issues/16809
+app.on('ready', isLinux ? () => setTimeout(init, 300) : init)
 
 app.on('activate', () => {
   if (global.modules.mainWindow) {

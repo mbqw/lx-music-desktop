@@ -1,6 +1,6 @@
 @import './colors.less';
 
-@themes: green, yellow, blue, red, pink, purple, orange, grey, ming, blue2, mid_autumn, naruto, happy_new_year;
+@themes: green, yellow, blue, red, pink, purple, orange, grey, ming, blue2, black, mid_autumn, naruto, happy_new_year;
 
 
 // Colors
@@ -8,7 +8,7 @@
 @color-theme: #4daf7c;
 @color-theme-bgimg: none;
 @color-theme-bgposition: center;
-@color-theme-bgsize: auto auto;
+@color-theme-bgsize: cover;
 @color-theme-hover: fadeout(lighten(@color-theme, 10%), 30%);
 @color-theme-active: fadeout(darken(@color-theme, 20%), 60%);
 @color-theme-font: #fff;
@@ -20,9 +20,10 @@
 @color-theme_2-hover: fadeout(lighten(@color-theme, 10%), 80%);
 @color-theme_2-active: fadeout(lighten(@color-theme, 10%), 70%);
 @color-theme_2-font:desaturate( darken(@color-theme_2, 70%), 90%);
-@color-theme_2-font-label: fadeout(@color-theme_2-font, 50%);
+@color-theme_2-font-label: fadeout(@color-theme_2-font, 55%);
 // @color-theme_2-line: transparent;
 @color-theme_2-line: lighten(@color-theme, 35%);
+@color-reply-floor: fadeout(@color-theme, 95%);
 @color-theme-sidebar: @color-theme;
 @color-btn: lighten(@color-theme, 5%);
 @color-btn-background: fadeout(lighten(@color-theme, 35%), 70%);
@@ -50,6 +51,8 @@
 @color-player-progress-bar1: darken(@color-theme_2, 12%);
 @color-player-progress-bar2: lighten(@color-theme, 12%);
 @color-player-status-text: lighten(@color-theme_2-font, 32%);
+@color-player-detail-lyric: fadeout(@color-theme_2-font, 40%);
+@color-player-detail-lyric-active: darken(@color-theme, 2%);
 @color-player-detail-play-btn: lighten(@color-theme, 7%);
 
 @color-tab-btn-background: fadeout(lighten(@color-theme, 10%), 80%);
@@ -77,7 +80,7 @@
 @color-green-theme: #4daf7c;
 @color-green-theme-bgimg: none;
 @color-green-theme-bgposition: center;
-@color-green-theme-bgsize: auto auto;
+@color-green-theme-bgsize: cover;
 @color-green-theme-hover: fadeout(lighten(@color-green-theme, 10%), 30%);
 @color-green-theme-active: fadeout(darken(@color-green-theme, 20%), 60%);
 @color-green-theme-font: #fff;
@@ -88,9 +91,10 @@
 @color-green-theme_2-hover: fadeout(lighten(@color-green-theme, 10%), 80%);
 @color-green-theme_2-active: fadeout(lighten(@color-green-theme, 10%), 70%);
 @color-green-theme_2-font: darken(desaturate(@color-green-theme_2, 70%), 90%);
-@color-green-theme_2-font-label: fadeout(@color-green-theme_2-font, 50%);
+@color-green-theme_2-font-label: fadeout(@color-green-theme_2-font, 55%);
 // @color-green-theme_2-line: transparent;
 @color-green-theme_2-line: lighten(@color-green-theme, 45%);
+@color-green-reply-floor: fadeout(@color-green-theme, 95%);
 @color-green-theme-sidebar: @color-green-theme;
 @color-green-btn: lighten(@color-green-theme, 5%);
 @color-green-btn-background: fadeout(lighten(@color-green-theme, 35%), 70%);
@@ -112,6 +116,8 @@
 @color-green-player-progress-bar1: darken(@color-green-theme_2, 12%);
 @color-green-player-progress-bar2: lighten(@color-green-theme, 12%);
 @color-green-player-status-text: lighten(@color-green-theme_2-font, 32%);
+@color-green-player-detail-lyric: fadeout(@color-green-theme_2-font, 40%);
+@color-green-player-detail-lyric-active: darken(@color-green-theme, 2%);
 @color-green-player-detail-play-btn: lighten(@color-green-theme, 7%);
 @color-green-tab-btn-background: fadeout(lighten(@color-green-theme, 10%), 80%);
 @color-green-tab-btn-background-hover: @color-green-theme_2-hover;
@@ -134,7 +140,7 @@
 @color-yellow-theme: #e9d460;
 @color-yellow-theme-bgimg: none;
 @color-yellow-theme-bgposition: center;
-@color-yellow-theme-bgsize: auto auto;
+@color-yellow-theme-bgsize: cover;
 @color-yellow-theme-hover: fadeout(lighten(@color-yellow-theme, 10%), 30%);
 @color-yellow-theme-active: fadeout(darken(@color-yellow-theme, 20%), 60%);
 @color-yellow-theme-font: #fff;
@@ -145,9 +151,10 @@
 @color-yellow-theme_2-hover: fadeout(lighten(@color-yellow-theme, 10%), 70%);
 @color-yellow-theme_2-active: fadeout(lighten(@color-yellow-theme, 10%), 60%);
 @color-yellow-theme_2-font: darken(desaturate(@color-yellow-theme_2, 70%), 90%);
-@color-yellow-theme_2-font-label: fadeout(@color-yellow-theme_2-font, 50%);
+@color-yellow-theme_2-font-label: fadeout(@color-yellow-theme_2-font, 55%);
 // @color-yellow-theme_2-line: transparent;
 @color-yellow-theme_2-line: lighten(@color-yellow-theme, 28%);
+@color-yellow-reply-floor: fadeout(@color-yellow-theme, 94%);
 @color-yellow-theme-sidebar: @color-yellow-theme;
 @color-yellow-btn: darken(@color-yellow-theme, 5%);
 @color-yellow-btn-background: fadeout(lighten(@color-yellow-theme, 25%), 60%);
@@ -169,6 +176,8 @@
 @color-yellow-player-progress-bar1: darken(@color-yellow-theme_2, 12%);
 @color-yellow-player-progress-bar2: lighten(@color-yellow-theme, 2%);
 @color-yellow-player-status-text: lighten(@color-yellow-theme_2-font, 32%);
+@color-yellow-player-detail-lyric: fadeout(@color-yellow-theme_2-font, 40%);
+@color-yellow-player-detail-lyric-active: darken(@color-yellow-theme, 7%);
 @color-yellow-player-detail-play-btn: lighten(@color-yellow-theme, 7%);
 @color-yellow-tab-btn-background: fadeout(lighten(@color-yellow-theme, 10%), 70%);
 @color-yellow-tab-btn-background-hover: @color-yellow-theme_2-hover;
@@ -190,7 +199,7 @@
 @color-orange-theme: #f5ab35;
 @color-orange-theme-bgimg: none;
 @color-orange-theme-bgposition: center;
-@color-orange-theme-bgsize: auto auto;
+@color-orange-theme-bgsize: cover;
 @color-orange-theme-hover: fadeout(lighten(@color-orange-theme, 10%), 30%);
 @color-orange-theme-active: fadeout(darken(@color-orange-theme, 20%), 60%);
 @color-orange-theme-font: #fff;
@@ -201,9 +210,10 @@
 @color-orange-theme_2-hover: fadeout(darken(@color-orange-theme, 5%), 80%);
 @color-orange-theme_2-active: fadeout(darken(@color-orange-theme, 5%), 70%);
 @color-orange-theme_2-font: darken(desaturate(@color-orange-theme_2, 70%), 90%);
-@color-orange-theme_2-font-label: fadeout(@color-orange-theme_2-font, 50%);
+@color-orange-theme_2-font-label: fadeout(@color-orange-theme_2-font, 55%);
 // @color-orange-theme_2-line: transparent;
 @color-orange-theme_2-line: lighten(@color-orange-theme, 36%);
+@color-orange-reply-floor: fadeout(@color-orange-theme, 95%);
 @color-orange-theme-sidebar: @color-orange-theme;
 @color-orange-btn: lighten(@color-orange-theme, 5%);
 @color-orange-btn-background: fadeout(lighten(@color-orange-theme, 25%), 60%);
@@ -225,6 +235,8 @@
 @color-orange-player-progress-bar1: darken(@color-orange-theme_2, 12%);
 @color-orange-player-progress-bar2: lighten(@color-orange-theme, 12%);
 @color-orange-player-status-text: lighten(@color-orange-theme_2-font, 32%);
+@color-orange-player-detail-lyric: fadeout(@color-orange-theme_2-font, 40%);
+@color-orange-player-detail-lyric-active: darken(@color-orange-theme, 7%);
 @color-orange-player-detail-play-btn: lighten(@color-orange-theme, 7%);
 @color-orange-tab-btn-background: fadeout(lighten(@color-orange-theme, 10%), 80%);
 @color-orange-tab-btn-background-hover: @color-orange-theme_2-hover;
@@ -246,7 +258,7 @@
 @color-blue-theme: #3498db;
 @color-blue-theme-bgimg: none;
 @color-blue-theme-bgposition: center;
-@color-blue-theme-bgsize: auto auto;
+@color-blue-theme-bgsize: cover;
 @color-blue-theme-hover: fadeout(lighten(@color-blue-theme, 10%), 30%);
 @color-blue-theme-active: fadeout(darken(@color-blue-theme, 20%), 60%);
 @color-blue-theme-font: #fff;
@@ -257,9 +269,10 @@
 @color-blue-theme_2-hover: fadeout(lighten(@color-blue-theme, 10%), 80%);
 @color-blue-theme_2-active: fadeout(lighten(@color-blue-theme, 10%), 70%);
 @color-blue-theme_2-font: darken(desaturate(@color-blue-theme_2, 70%), 90%);
-@color-blue-theme_2-font-label: fadeout(@color-blue-theme_2-font, 50%);
+@color-blue-theme_2-font-label: fadeout(@color-blue-theme_2-font, 55%);
 // @color-blue-theme_2-line: transparent;
 @color-blue-theme_2-line: lighten(@color-blue-theme, 42%);
+@color-blue-reply-floor: fadeout(@color-blue-theme, 95%);
 @color-blue-theme-sidebar: @color-blue-theme;
 @color-blue-btn: lighten(@color-blue-theme, 5%);
 @color-blue-btn-background: fadeout(lighten(@color-blue-theme, 35%), 50%);
@@ -281,6 +294,8 @@
 @color-blue-player-progress-bar1: darken(@color-blue-theme_2, 12%);
 @color-blue-player-progress-bar2: lighten(@color-blue-theme, 12%);
 @color-blue-player-status-text: lighten(@color-blue-theme_2-font, 32%);
+@color-blue-player-detail-lyric: fadeout(@color-blue-theme_2-font, 40%);
+@color-blue-player-detail-lyric-active: darken(@color-blue-theme, 2%);
 @color-blue-player-detail-play-btn: lighten(@color-blue-theme, 7%);
 @color-blue-tab-btn-background: fadeout(lighten(@color-blue-theme, 10%), 80%);
 @color-blue-tab-btn-background-hover: @color-blue-theme_2-hover;
@@ -302,7 +317,7 @@
 @color-red-theme: #d64541;
 @color-red-theme-bgimg: none;
 @color-red-theme-bgposition: center;
-@color-red-theme-bgsize: auto auto;
+@color-red-theme-bgsize: cover;
 @color-red-theme-hover: fadeout(lighten(@color-red-theme, 10%), 30%);
 @color-red-theme-active: fadeout(darken(@color-red-theme, 20%), 60%);
 @color-red-theme-font: #fff;
@@ -313,9 +328,10 @@
 @color-red-theme_2-background_1: #fff;
 @color-red-theme_2-background_2: fadeout(@color-red-theme_2-background_1, 2%);
 @color-red-theme_2-font: darken(desaturate(@color-red-theme_2, 70%), 90%);
-@color-red-theme_2-font-label: fadeout(@color-red-theme_2-font, 50%);
+@color-red-theme_2-font-label: fadeout(@color-red-theme_2-font, 55%);
 // @color-red-theme_2-line: transparent;
 @color-red-theme_2-line: lighten(@color-red-theme, 42%);
+@color-red-reply-floor: fadeout(@color-red-theme, 95%);
 @color-red-theme-sidebar: @color-red-theme;
 @color-red-btn: lighten(@color-red-theme, 5%);
 @color-red-btn-background: fadeout(lighten(@color-red-theme, 35%), 70%);
@@ -337,6 +353,8 @@
 @color-red-player-progress-bar1: darken(@color-red-theme_2, 12%);
 @color-red-player-progress-bar2: lighten(@color-red-theme, 12%);
 @color-red-player-status-text: lighten(@color-red-theme_2-font, 32%);
+@color-red-player-detail-lyric: fadeout(@color-red-theme_2-font, 40%);
+@color-red-player-detail-lyric-active: lighten(@color-red-theme, 2%);
 @color-red-player-detail-play-btn: lighten(@color-red-theme, 7%);
 @color-red-tab-border-top: fadeout(lighten(@color-red-theme, 25%), 70%);
 @color-red-tab-border-bottom: lighten(@color-red-theme, 35%);
@@ -360,7 +378,7 @@
 @color-pink-theme: #f1828d;
 @color-pink-theme-bgimg: none;
 @color-pink-theme-bgposition: center;
-@color-pink-theme-bgsize: auto auto;
+@color-pink-theme-bgsize: cover;
 @color-pink-theme-hover: fadeout(lighten(@color-pink-theme, 10%), 30%);
 @color-pink-theme-active: fadeout(darken(@color-pink-theme, 20%), 60%);
 @color-pink-theme-font: #fff;
@@ -371,9 +389,10 @@
 @color-pink-theme_2-hover: fadeout(lighten(@color-pink-theme, 10%), 75%);
 @color-pink-theme_2-active: fadeout(lighten(@color-pink-theme, 10%), 60%);
 @color-pink-theme_2-font: darken(desaturate(@color-pink-theme_2, 70%), 90%);
-@color-pink-theme_2-font-label: fadeout(@color-pink-theme_2-font, 50%);
+@color-pink-theme_2-font-label: fadeout(@color-pink-theme_2-font, 55%);
 // @color-pink-theme_2-line: transparent;
 @color-pink-theme_2-line: lighten(@color-pink-theme, 25%);
+@color-pink-reply-floor: fadeout(@color-pink-theme, 93%);
 @color-pink-theme-sidebar: @color-pink-theme;
 @color-pink-btn: darken(@color-pink-theme, 3%);
 @color-pink-btn-background: fadeout(lighten(@color-pink-theme, 20%), 50%);
@@ -395,6 +414,8 @@
 @color-pink-player-progress-bar1: darken(@color-pink-theme_2, 12%);
 @color-pink-player-progress-bar2: lighten(@color-pink-theme, 2%);
 @color-pink-player-status-text: lighten(@color-pink-theme_2-font, 32%);
+@color-pink-player-detail-lyric: fadeout(@color-pink-theme_2-font, 40%);
+@color-pink-player-detail-lyric-active: darken(@color-pink-theme, 2%);
 @color-pink-player-detail-play-btn: lighten(@color-pink-theme, 7%);
 @color-pink-tab-btn-background: fadeout(lighten(@color-pink-theme, 10%), 70%);
 @color-pink-tab-btn-background-hover: @color-pink-theme_2-hover;
@@ -416,7 +437,7 @@
 @color-purple-theme: #9b59b6;
 @color-purple-theme-bgimg: none;
 @color-purple-theme-bgposition: center;
-@color-purple-theme-bgsize: auto auto;
+@color-purple-theme-bgsize: cover;
 @color-purple-theme-hover: fadeout(lighten(@color-purple-theme, 10%), 30%);
 @color-purple-theme-active: fadeout(darken(@color-purple-theme, 20%), 60%);
 @color-purple-theme-font: #fff;
@@ -427,9 +448,10 @@
 @color-purple-theme_2-hover: fadeout(lighten(@color-purple-theme, 10%), 80%);
 @color-purple-theme_2-active: fadeout(lighten(@color-purple-theme, 10%), 70%);
 @color-purple-theme_2-font: darken(desaturate(@color-purple-theme_2, 70%), 90%);
-@color-purple-theme_2-font-label: fadeout(@color-purple-theme_2-font, 50%);
+@color-purple-theme_2-font-label: fadeout(@color-purple-theme_2-font, 55%);
 // @color-purple-theme_2-line: transparent;
 @color-purple-theme_2-line: lighten(@color-purple-theme, 43%);
+@color-purple-reply-floor: fadeout(@color-purple-theme, 95%);
 @color-purple-theme-sidebar: @color-purple-theme;
 @color-purple-btn: lighten(@color-purple-theme, 5%);
 @color-purple-btn-background: fadeout(lighten(@color-purple-theme, 35%), 70%);
@@ -451,6 +473,8 @@
 @color-purple-player-progress-bar1: darken(@color-purple-theme_2, 12%);
 @color-purple-player-progress-bar2: lighten(@color-purple-theme, 12%);
 @color-purple-player-status-text: lighten(@color-purple-theme_2-font, 32%);
+@color-purple-player-detail-lyric: fadeout(@color-purple-theme_2-font, 40%);
+@color-purple-player-detail-lyric-active: darken(@color-purple-theme, 2%);
 @color-purple-player-detail-play-btn: lighten(@color-purple-theme, 7%);
 @color-purple-tab-btn-background: fadeout(lighten(@color-purple-theme, 10%), 80%);
 @color-purple-tab-btn-background-hover: @color-purple-theme_2-hover;
@@ -472,7 +496,7 @@
 @color-grey-theme: #6c7a89;
 @color-grey-theme-bgimg: none;
 @color-grey-theme-bgposition: center;
-@color-grey-theme-bgsize: auto auto;
+@color-grey-theme-bgsize: cover;
 @color-grey-theme-hover: fadeout(lighten(@color-grey-theme, 10%), 30%);
 @color-grey-theme-active: fadeout(darken(@color-grey-theme, 20%), 60%);
 @color-grey-theme-font: #fff;
@@ -483,9 +507,10 @@
 @color-grey-theme_2-hover: fadeout(lighten(@color-grey-theme, 10%), 80%);
 @color-grey-theme_2-active: fadeout(lighten(@color-grey-theme, 10%), 70%);
 @color-grey-theme_2-font: darken(desaturate(@color-grey-theme_2, 70%), 90%);
-@color-grey-theme_2-font-label: fadeout(@color-grey-theme_2-font, 50%);
+@color-grey-theme_2-font-label: fadeout(@color-grey-theme_2-font, 55%);
 // @color-grey-theme_2-line: transparent;
 @color-grey-theme_2-line: lighten(@color-grey-theme, 47%);
+@color-grey-reply-floor: fadeout(@color-grey-theme, 95%);
 @color-grey-theme-sidebar: @color-grey-theme;
 @color-grey-btn: lighten(@color-grey-theme, 5%);
 @color-grey-btn-background: fadeout(lighten(@color-grey-theme, 35%), 70%);
@@ -507,6 +532,8 @@
 @color-grey-player-progress-bar1: darken(@color-grey-theme_2, 12%);
 @color-grey-player-progress-bar2: lighten(@color-grey-theme, 12%);
 @color-grey-player-status-text: lighten(@color-grey-theme_2-font, 32%);
+@color-grey-player-detail-lyric: fadeout(@color-grey-theme_2-font, 55%);
+@color-grey-player-detail-lyric-active: darken(@color-grey-theme, 3%);
 @color-grey-player-detail-play-btn: lighten(@color-grey-theme, 7%);
 @color-grey-tab-btn-background: fadeout(lighten(@color-grey-theme, 10%), 80%);
 @color-grey-tab-btn-background-hover: @color-grey-theme_2-hover;
@@ -529,7 +556,7 @@
 @color-ming-theme: #336e7b;
 @color-ming-theme-bgimg: none;
 @color-ming-theme-bgposition: center;
-@color-ming-theme-bgsize: auto auto;
+@color-ming-theme-bgsize: cover;
 @color-ming-theme-hover: fadeout(lighten(@color-ming-theme, 7%), 30%);
 @color-ming-theme-active: fadeout(darken(@color-ming-theme, 20%), 60%);
 @color-ming-theme-font: #fff;
@@ -540,9 +567,10 @@
 @color-ming-theme_2-background_1: #fff;
 @color-ming-theme_2-background_2: fadeout(@color-ming-theme_2-background_1, 2%);
 @color-ming-theme_2-font: darken(desaturate(@color-ming-theme_2, 70%), 90%);
-@color-ming-theme_2-font-label: fadeout(@color-ming-theme_2-font, 50%);
+@color-ming-theme_2-font-label: fadeout(@color-ming-theme_2-font, 55%);
 // @color-ming-theme_2-line: transparent;
 @color-ming-theme_2-line: lighten(@color-ming-theme, 60%);
+@color-ming-reply-floor: fadeout(@color-ming-theme, 95%);
 @color-ming-theme-sidebar: @color-ming-theme;
 @color-ming-btn: lighten(@color-ming-theme, 5%);
 @color-ming-btn-background: fadeout(lighten(@color-ming-theme, 35%), 75%);
@@ -564,6 +592,8 @@
 @color-ming-player-progress-bar1: darken(@color-ming-theme_2, 12%);
 @color-ming-player-progress-bar2: lighten(@color-ming-theme, 12%);
 @color-ming-player-status-text: lighten(@color-ming-theme_2-font, 32%);
+@color-ming-player-detail-lyric: fadeout(@color-ming-theme_2-font, 50%);
+@color-ming-player-detail-lyric-active: lighten(@color-ming-theme, 2%);
 @color-ming-player-detail-play-btn: lighten(@color-ming-theme, 10%);
 @color-ming-tab-border-top: fadeout(lighten(@color-ming-theme, 25%), 70%);
 @color-ming-tab-border-bottom: lighten(@color-ming-theme, 35%);
@@ -588,7 +618,7 @@
 @color-blue2-theme: #4f62d0;
 @color-blue2-theme-bgimg: none;
 @color-blue2-theme-bgposition: center;
-@color-blue2-theme-bgsize: auto auto;
+@color-blue2-theme-bgsize: cover;
 @color-blue2-theme-hover: fadeout(lighten(@color-blue2-theme, 10%), 30%);
 @color-blue2-theme-active: fadeout(darken(@color-blue2-theme, 20%), 60%);
 @color-blue2-theme-font: #fff;
@@ -599,9 +629,10 @@
 @color-blue2-theme_2-hover: fadeout(lighten(@color-blue2-theme, 10%), 80%);
 @color-blue2-theme_2-active: fadeout(lighten(@color-blue2-theme, 10%), 70%);
 @color-blue2-theme_2-font: darken(desaturate(@color-blue2-theme_2, 70%), 90%);
-@color-blue2-theme_2-font-label: fadeout(@color-blue2-theme_2-font, 50%);
+@color-blue2-theme_2-font-label: fadeout(@color-blue2-theme_2-font, 55%);
 // @color-blue2-theme_2-line: transparent;
 @color-blue2-theme_2-line: lighten(@color-blue2-theme, 41%);
+@color-blue2-reply-floor: fadeout(@color-blue2-theme, 95%);
 @color-blue2-theme-sidebar: @color-blue2-theme;
 @color-blue2-btn: lighten(@color-blue2-theme, 5%);
 @color-blue2-btn-background: fadeout(lighten(@color-blue2-theme, 30%), 70%);
@@ -623,6 +654,8 @@
 @color-blue2-player-progress-bar1: darken(@color-blue2-theme_2, 12%);
 @color-blue2-player-progress-bar2: lighten(@color-blue2-theme, 12%);
 @color-blue2-player-status-text: lighten(@color-blue2-theme_2-font, 32%);
+@color-blue2-player-detail-lyric: fadeout(@color-blue2-theme_2-font, 50%);
+@color-blue2-player-detail-lyric-active: darken(@color-blue2-theme, 2%);
 @color-blue2-player-detail-play-btn: lighten(@color-blue2-theme, 7%);
 @color-blue2-tab-btn-background: fadeout(lighten(@color-blue2-theme, 10%), 80%);
 @color-blue2-tab-btn-background-hover: @color-blue2-theme_2-hover;
@@ -642,6 +675,66 @@
 @color-blue2-badge-info-font: #fff;
 
 
+@color-black-theme: #272727;
+@color-black-theme-bgimg: url(../images/landingMoon.png);
+@color-black-theme-bgposition: center;
+@color-black-theme-bgsize: cover;
+@color-black-theme-hover: fadeout(lighten(@color-black-theme, 13%), 30%);
+@color-black-theme-active: fadeout(lighten(@color-black-theme, 8%), 30%);
+@color-black-theme-font: lighten(@color-black-theme, 55%);
+@color-black-theme-font-label: lighten(@color-black-theme, 35%);
+@color-black-theme_2: rgba(19, 19, 19, 0.82);
+@color-black-theme_2-background_1: #080808;
+@color-black-theme_2-background_2: #1f1f1f;
+@color-black-theme_2-hover: fadeout(lighten(@color-black-theme, 10%), 80%);
+@color-black-theme_2-active: fadeout(lighten(@color-black-theme, 10%), 70%);
+@color-black-theme_2-font: lighten(@color-black-theme_2, 73%);
+@color-black-theme_2-font-label: darken(@color-black-theme_2-font, 30%);
+// @color-black-theme_2-line: transparent;
+@color-black-theme_2-line: lighten(@color-black-theme_2, 3.2%);
+@color-black-reply-floor: fadeout(lighten(@color-black-theme, 60%), 95%);
+@color-black-theme-sidebar: @color-black-theme;
+@color-black-btn: lighten(@color-black-theme, 40%);
+@color-black-btn-background: fadeout(lighten(@color-black-theme, 30%), 70%);
+@color-black-btn-hover: fadeout(lighten(@color-black-theme, 40%), 70%);
+@color-black-btn-active: fadeout(lighten(@color-black-theme, 20%), 70%);
+@color-black-btn-select: fadeout(lighten(@color-black-theme, 25%), 70%);
+@color-black-pagination-background: fadeout(lighten(@color-black-theme, 25%), 20%);
+@color-black-pagination-hover: fadeout(lighten(@color-black-theme, 1%), 70%);
+@color-black-pagination-active: fadeout(darken(@color-black-theme, 5%), 60%);
+@color-black-pagination-select: fadeout(darken(@color-black-theme, 3%), 60%);
+@color-black-search-form-background: fadeout(lighten(@color-black-theme, 8%), 6%);
+@color-black-search-list-hover: fadeout(darken(@color-black-theme, 10%), 70%);
+@color-black-scrollbar-track: fadeout(lighten(@color-black-theme, 10%), 75%);
+@color-black-scrollbar-thumb: fadeout(lighten(@color-black-theme, 10%), 50%);
+@color-black-scrollbar-thumb-hover: fadeout(lighten(@color-black-theme, 10%), 35%);
+@color-black-player-pic-c1: fadeout(@color-black-theme_2, 50%);
+@color-black-player-pic-c2: lighten(@color-black-theme_2, 30%);
+@color-black-player-progress: lighten(@color-black-theme_2, 6%);
+@color-black-player-progress-bar1: lighten(@color-black-theme_2, 12%);
+@color-black-player-progress-bar2: lighten(@color-black-theme, 12%);
+@color-black-player-status-text: darken(@color-black-theme_2-font, 20%);
+@color-black-player-detail-lyric: fadeout(darken(@color-black-theme_2-font, 30%), 10%);
+@color-black-player-detail-lyric-active: lighten(@color-black-theme, 50%);
+@color-black-player-detail-play-btn: lighten(@color-black-theme, 30%);
+@color-black-tab-btn-background: fadeout(lighten(@color-black-theme, 10%), 80%);
+@color-black-tab-btn-background-hover: @color-black-theme_2-hover;
+@color-black-tab-border-top: fadeout(lighten(@color-black-theme, 5%), 50%);
+@color-black-tab-border-bottom: lighten(@color-black-theme, 5%);
+@color-black-hideBtn: #4e4e4e;
+@color-black-minBtn: #5e5e5e;
+@color-black-maxBtn: #535353;
+@color-black-closeBtn: #6e6e6e;
+@color-black-hideBtn-hover: fadeout(@color-hideBtn, 10%);
+@color-black-minBtn-hover: fadeout(@color-black-minBtn, 10%);
+@color-black-maxBtn-hover: fadeout(@color-black-maxBtn, 10%);
+@color-black-closeBtn-hover: fadeout(@color-black-closeBtn, 10%);
+@color-black-badge-success: lighten(@color-black-theme, 10%);
+@color-black-badge-success-font: #fff;
+@color-black-badge-info: lighten(@color-black-theme, 25%);
+@color-black-badge-info-font: #fff;
+
+
 @color-mid_autumn-theme: rgba(74, 55, 82, 1);
 @color-mid_autumn-theme-bgimg: url(../images/jqbg.jpg);
 @color-mid_autumn-theme-bgposition: center;
@@ -651,7 +744,7 @@
 @color-mid_autumn-theme-font: rgba(246, 233, 255, 0.9);
 @color-mid_autumn-theme-font-label: fadeout(lighten(@color-mid_autumn-theme, 20%), 20%);
 @color-mid_autumn-theme_2: rgba(255, 255, 255, .9);
-@color-mid_autumn-theme_2-background_1: #e7e7e9;
+@color-mid_autumn-theme_2-background_1: #ececec;
 @color-mid_autumn-theme_2-background_2: fadeout(@color-mid_autumn-theme_2-background_1, 2%);
 @color-mid_autumn-theme_2-hover: fadeout(lighten(@color-mid_autumn-theme, 15%), 80%);
 @color-mid_autumn-theme_2-active: fadeout(lighten(@color-mid_autumn-theme, 15%), 70%);
@@ -659,6 +752,7 @@
 @color-mid_autumn-theme_2-font-label: desaturate(lighten(@color-mid_autumn-theme, 30%), 45%);
 // @color-mid_autumn-theme_2-line: transparent;
 @color-mid_autumn-theme_2-line: lighten(@color-mid_autumn-theme, 61%);
+@color-mid_autumn-reply-floor: fadeout(@color-mid_autumn-theme, 95%);
 @color-mid_autumn-theme-sidebar: rgba(255, 255, 255, 0);
 @color-mid_autumn-btn: lighten(@color-mid_autumn-theme, 10%);
 @color-mid_autumn-btn-background: fadeout(lighten(@color-mid_autumn-theme, 35%), 70%);
@@ -680,6 +774,8 @@
 @color-mid_autumn-player-progress-bar1: darken(@color-mid_autumn-theme_2, 12%);
 @color-mid_autumn-player-progress-bar2: lighten(@color-mid_autumn-theme, 12%);
 @color-mid_autumn-player-status-text: lighten(@color-mid_autumn-theme_2-font, 32%);
+@color-mid_autumn-player-detail-lyric: fadeout(@color-mid_autumn-theme_2-font, 40%);
+@color-mid_autumn-player-detail-lyric-active: lighten(@color-mid_autumn-theme, 7%);
 @color-mid_autumn-player-detail-play-btn: lighten(@color-mid_autumn-theme, 7%);
 @color-mid_autumn-tab-btn-background: fadeout(lighten(@color-mid_autumn-theme, 10%), 80%);
 @color-mid_autumn-tab-btn-background-hover: @color-mid_autumn-theme_2-hover;
@@ -716,6 +812,7 @@
 @color-mid_autumn-theme_2-font-label: desaturate(lighten(@color-mid_autumn-theme, 30%), 45%);
 // @color-mid_autumn-theme_2-line: transparent;
 @color-mid_autumn-theme_2-line: darken(@color-mid_autumn-theme, 18%);
+@color-mid_autumn-reply-floor: fadeout(@color-mid_autumn-theme, 95%);
 @color-mid_autumn-theme-sidebar: rgba(255, 255, 255, 0);
 @color-mid_autumn-btn: darken(@color-mid_autumn-theme, 10%);
 @color-mid_autumn-btn-background: fadeout(lighten(@color-mid_autumn-theme, 35%), 70%);
@@ -737,6 +834,8 @@
 @color-mid_autumn-player-progress-bar1: darken(@color-mid_autumn-theme_2, 12%);
 @color-mid_autumn-player-progress-bar2: lighten(@color-mid_autumn-theme, 12%);
 @color-mid_autumn-player-status-text: lighten(@color-mid_autumn-theme_2-font, 32%);
+@color-mid_autumn-player-detail-lyric: lighten(@color-mid_autumn-theme, 7%);
+@color-mid_autumn-player-detail-lyric-active: lighten(@color-mid_autumn-theme, 7%);
 @color-mid_autumn-player-detail-play-btn: lighten(@color-mid_autumn-theme, 7%);
 @color-mid_autumn-tab-btn-background: fadeout(lighten(@color-mid_autumn-theme, 10%), 80%);
 @color-mid_autumn-tab-btn-background-hover: @color-mid_autumn-theme_2-hover;
@@ -772,6 +871,7 @@
 @color-naruto-theme_2-font-label: desaturate(lighten(@color-naruto-theme, 10%), 45%);
 // @color-naruto-theme_2-line: transparent;
 @color-naruto-theme_2-line: fadeout(lighten(@color-naruto-theme, 36%), 70%);
+@color-naruto-reply-floor: fadeout(lighten(@color-naruto-theme, 12%), 90%);
 @color-naruto-theme-sidebar: rgba(255, 255, 255, .3);
 @color-naruto-btn: lighten(@color-naruto-theme, 2%);
 @color-naruto-btn-background: fadeout(lighten(@color-naruto-theme, 35%), 70%);
@@ -793,6 +893,8 @@
 @color-naruto-player-progress-bar1: darken(@color-naruto-theme_2, 12%);
 @color-naruto-player-progress-bar2: lighten(@color-naruto-theme, 12%);
 @color-naruto-player-status-text: lighten(@color-naruto-theme_2-font, 32%);
+@color-naruto-player-detail-lyric: fadeout(@color-naruto-theme_2-font, 36%);
+@color-naruto-player-detail-lyric-active: darken(@color-naruto-theme, 7%);
 @color-naruto-player-detail-play-btn: lighten(@color-naruto-theme, 7%);
 @color-naruto-tab-btn-background: fadeout(lighten(@color-naruto-theme, 10%), 80%);
 @color-naruto-tab-btn-background-hover: @color-naruto-theme_2-hover;
@@ -811,60 +913,63 @@
 @color-naruto-badge-info: lighten(@color-naruto-theme, 10%);
 @color-naruto-badge-info-font: #fff;
 
-@color-happy_new_year-theme: rgb(252, 57, 57);
-@color-happy_new_year-theme-bgimg: url(../images/xnkl.jpg);
+@color-happy_new_year-theme: rgba(192, 57, 43, 1);
+@color-happy_new_year-theme-bgimg: url(../images/xnkl.png);
 @color-happy_new_year-theme-bgposition: center;
 @color-happy_new_year-theme-bgsize: cover;
 @color-happy_new_year-theme-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 45%);
 @color-happy_new_year-theme-active: fadeout(lighten(@color-happy_new_year-theme, 15%), 60%);
-@color-happy_new_year-theme-font: rgba(255, 255, 255, 0.9);
-@color-happy_new_year-theme-font-label: fadeout(lighten(@color-happy_new_year-theme, 20%), 20%);
-@color-happy_new_year-theme_2: rgba(255, 199, 199, 0.8);
-@color-happy_new_year-theme_2-background_1: #f2a4a4;
+@color-happy_new_year-theme-font: rgba(148, 67, 67, 0.9);
+@color-happy_new_year-theme-font-label: fadeout(darken(@color-happy_new_year-theme, 20%), 20%);
+@color-happy_new_year-theme_2: rgba(255, 255, 255, 0.8);
+@color-happy_new_year-theme_2-background_1: #fef9f2;
 @color-happy_new_year-theme_2-background_2: fadeout(@color-happy_new_year-theme_2-background_1, 2%);
-@color-happy_new_year-theme_2-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 65%);
-@color-happy_new_year-theme_2-active: fadeout(lighten(@color-happy_new_year-theme, 10%), 55%);
-@color-happy_new_year-theme_2-font: darken(@color-happy_new_year-theme_2, 90%);
-@color-happy_new_year-theme_2-font-label: desaturate(darken(@color-happy_new_year-theme, 5%), 50%);
+@color-happy_new_year-theme_2-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 75%);
+@color-happy_new_year-theme_2-active: fadeout(lighten(@color-happy_new_year-theme, 10%), 65%);
+@color-happy_new_year-theme_2-font: darken(desaturate(@color-happy_new_year-theme_2, 70%), 90%);
+@color-happy_new_year-theme_2-font-label: desaturate(lighten(@color-happy_new_year-theme, 10%), 45%);
 // @color-happy_new_year-theme_2-line: transparent;
-@color-happy_new_year-theme_2-line: fadeout(lighten(@color-happy_new_year-theme, 16%), 70%);
-@color-happy_new_year-theme-sidebar: rgba(119, 37, 18, 0.1);
-@color-happy_new_year-btn: desaturate(@color-happy_new_year-theme, 10%);
-@color-happy_new_year-btn-background: fadeout(lighten(@color-happy_new_year-theme, 15%), 60%);
+@color-happy_new_year-theme_2-line: fadeout(lighten(@color-happy_new_year-theme, 36%), 80%);
+@color-happy_new_year-reply-floor: fadeout(lighten(@color-happy_new_year-theme, 12%), 90%);
+@color-happy_new_year-theme-sidebar: rgba(255, 255, 255, .3);
+@color-happy_new_year-btn: lighten(@color-happy_new_year-theme, 2%);
+@color-happy_new_year-btn-background: fadeout(lighten(@color-happy_new_year-theme, 35%), 70%);
 @color-happy_new_year-btn-hover: fadeout(lighten(@color-happy_new_year-theme, 5%), 70%);
 @color-happy_new_year-btn-active: fadeout(darken(@color-happy_new_year-theme, 5%), 70%);
 @color-happy_new_year-btn-select: fadeout(lighten(@color-happy_new_year-theme, 5%), 50%);
-@color-happy_new_year-pagination-background: fadeout(lighten(@color-happy_new_year-theme, 15%), 40%);
-@color-happy_new_year-pagination-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 70%);
+@color-happy_new_year-pagination-background: fadeout(lighten(@color-happy_new_year-theme, 20%), 70%);
+@color-happy_new_year-pagination-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 60%);
 @color-happy_new_year-pagination-active: fadeout(darken(@color-happy_new_year-theme, 10%), 70%);
-@color-happy_new_year-pagination-select: fadeout(lighten(@color-happy_new_year-theme, 10%), 55%);
-@color-happy_new_year-search-form-background: fadeout(lighten(@color-happy_new_year-theme, 15%), 20%);
-@color-happy_new_year-search-list-hover: fadeout(darken(@color-happy_new_year-theme, 10%), 50%);
-@color-happy_new_year-scrollbar-track: fadeout(lighten(@color-happy_new_year-theme, 6%), 75%);
-@color-happy_new_year-scrollbar-thumb: fadeout(lighten(@color-happy_new_year-theme, 6%), 50%);
-@color-happy_new_year-scrollbar-thumb-hover: fadeout(lighten(@color-happy_new_year-theme, 6%), 35%);
+@color-happy_new_year-pagination-select: fadeout(lighten(@color-happy_new_year-theme, 10%), 50%);
+@color-happy_new_year-search-form-background: fadeout(lighten(@color-happy_new_year-theme, 30%), 20%);
+@color-happy_new_year-search-list-hover: fadeout(darken(@color-happy_new_year-theme, 10%), 65%);
+@color-happy_new_year-scrollbar-track: fadeout(lighten(@color-happy_new_year-theme, 10%), 70%);
+@color-happy_new_year-scrollbar-thumb: fadeout(lighten(@color-happy_new_year-theme, 10%), 50%);
+@color-happy_new_year-scrollbar-thumb-hover: fadeout(lighten(@color-happy_new_year-theme, 10%), 35%);
 @color-happy_new_year-player-pic-c1: fadeout(@color-happy_new_year-theme_2, 50%);
 @color-happy_new_year-player-pic-c2: darken(@color-happy_new_year-theme_2, 30%);
 @color-happy_new_year-player-progress: darken(@color-happy_new_year-theme_2, 10%);
-@color-happy_new_year-player-progress-bar1: darken(@color-happy_new_year-theme_2, 12%);
-@color-happy_new_year-player-progress-bar2: lighten(@color-happy_new_year-theme, 9%);
+@color-happy_new_year-player-progress-bar1: darken(@color-happy_new_year-theme_2, 5%);
+@color-happy_new_year-player-progress-bar2: lighten(@color-happy_new_year-theme, 5%);
 @color-happy_new_year-player-status-text: lighten(@color-happy_new_year-theme_2-font, 32%);
+@color-happy_new_year-player-detail-lyric: fadeout(@color-happy_new_year-theme_2-font, 36%);
+@color-happy_new_year-player-detail-lyric-active: darken(@color-happy_new_year-theme, 7%);
 @color-happy_new_year-player-detail-play-btn: lighten(@color-happy_new_year-theme, 7%);
 @color-happy_new_year-tab-btn-background: fadeout(lighten(@color-happy_new_year-theme, 10%), 80%);
 @color-happy_new_year-tab-btn-background-hover: @color-happy_new_year-theme_2-hover;
 @color-happy_new_year-tab-border-top: fadeout(lighten(@color-happy_new_year-theme, 5%), 50%);
 @color-happy_new_year-tab-border-bottom: lighten(@color-happy_new_year-theme, 5%);
-@color-happy_new_year-hideBtn: #64a130;
-@color-happy_new_year-minBtn: #c4943b;
+@color-happy_new_year-hideBtn: #3bc2b2;
+@color-happy_new_year-minBtn: #85c43b;
 @color-happy_new_year-maxBtn: #e7aa36;
 @color-happy_new_year-closeBtn: #ea6e4d;
 @color-happy_new_year-hideBtn-hover: fadeout(@color-hideBtn, 10%);
 @color-happy_new_year-minBtn-hover: fadeout(@color-happy_new_year-minBtn, 10%);
 @color-happy_new_year-maxBtn-hover: fadeout(@color-happy_new_year-maxBtn, 10%);
 @color-happy_new_year-closeBtn-hover: fadeout(@color-happy_new_year-closeBtn, 10%);
-@color-happy_new_year-badge-success: @color-happy_new_year-theme;
+@color-happy_new_year-badge-success: lighten(@color-happy_new_year-theme, 10%);
 @color-happy_new_year-badge-success-font: #fff;
-@color-happy_new_year-badge-info: #c4943b;
+@color-happy_new_year-badge-info: #dfbb6b;
 @color-happy_new_year-badge-info-font: #fff;
 
 

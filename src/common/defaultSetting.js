@@ -1,9 +1,8 @@
 const path = require('path')
 const os = require('os')
-const { isMac } = require('./utils')
 
 const defaultSetting = {
-  version: '1.0.34',
+  version: '1.0.47',
   player: {
     togglePlayMethod: 'listLoop',
     highQuality: false,
@@ -12,6 +11,11 @@ const defaultSetting = {
     isMute: false,
     mediaDeviceId: 'default',
     isMediaDeviceRemovedStopPlay: false,
+    isShowLyricTranslation: false,
+    isS2t: false, // 是否将歌词从简体转换为繁体
+    isPlayLxlrc: true,
+    isSavePlayTime: false,
+    audioVisualization: false,
   },
   desktopLyric: {
     enable: false,
@@ -22,7 +26,9 @@ const defaultSetting = {
     x: null,
     y: null,
     theme: 0,
+    isLockScreen: true,
     style: {
+      font: '',
       fontSize: 120,
       opacity: 95,
       isZoomActiveLrc: true,
@@ -31,8 +37,8 @@ const defaultSetting = {
   list: {
     isShowAlbumName: true,
     isShowSource: true,
-    prevSelectListId: 'default',
     isSaveScrollLocation: true,
+    addMusicLocationType: 'top',
   },
   download: {
     enable: false,
@@ -40,8 +46,10 @@ const defaultSetting = {
     fileName: '歌名 - 歌手',
     maxDownloadNum: 3,
     isDownloadLrc: false,
+    lrcFormat: 'utf8',
     isEmbedPic: true,
     isEmbedLyric: false,
+    isUseOtherSource: false,
   },
   leaderboard: {
     source: 'kw',
@@ -80,16 +88,21 @@ const defaultSetting = {
     isToTray: false,
     themeId: 0,
   },
+  sync: {
+    enable: false,
+    port: '23332',
+  },
   windowSizeId: 2,
   themeId: 0,
   langId: null,
   sourceId: 'kw',
   apiSource: 'temp',
   sourceNameType: 'alias',
+  isShowAnimation: true,
   randomAnimate: true,
   ignoreVersion: null,
   isAgreePact: false,
-  controlBtnPosition: isMac ? 'left' : 'right',
+  controlBtnPosition: process.platform === 'darwin' ? 'left' : 'right',
 }
 
 const overwriteSetting = {
@@ -97,7 +110,10 @@ const overwriteSetting = {
 }
 
 // 使用新年皮肤
-if (new Date().getMonth() < 2) defaultSetting.themeId = 9
+if (new Date().getMonth() < 2) {
+  defaultSetting.themeId = 9
+  defaultSetting.desktopLyric.theme = 3
+}
 
 
 exports.defaultSetting = defaultSetting

@@ -1,4 +1,5 @@
 const path = require('path')
+const ESLintPlugin = require('eslint-webpack-plugin')
 
 module.exports = {
   target: 'electron-main',
@@ -9,33 +10,25 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, '../../src/main'),
-      events: path.join(__dirname, '../../src/main/events'),
-      common: path.join(__dirname, '../../src/common'),
+      '@main': path.join(__dirname, '../../src/main'),
+      '@renderer': path.join(__dirname, '../../src/renderer'),
+      '@lyric': path.join(__dirname, '../../src/renderer-lyric'),
+      '@common': path.join(__dirname, '../../src/common'),
     },
     extensions: ['*', '.js', '.json', '.node'],
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: {
-          loader: 'eslint-loader',
-          options: {
-            formatter: require('eslint-formatter-friendly'),
-          },
-        },
-        exclude: /node_modules/,
-        enforce: 'pre',
+        test: /\.node$/,
+        use: 'node-loader',
       },
-      // {
-      //   test: /\.js$/,
-      //   loader: 'babel-loader',
-      //   exclude: /node_modules/,
-      // },
     ],
   },
   performance: {
     maxEntrypointSize: 300000,
   },
+  plugins: [
+    new ESLintPlugin(),
+  ],
 }

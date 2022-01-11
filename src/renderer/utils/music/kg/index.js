@@ -5,12 +5,14 @@ import musicSearch from './musicSearch'
 import pic from './pic'
 import lyric from './lyric'
 import hotSearch from './hotSearch'
+import comment from './comment'
 
 const kg = {
   leaderboard,
   songList,
   musicSearch,
   hotSearch,
+  comment,
   getMusicUrl(songInfo, type) {
     return apis('kg').getMusicUrl(songInfo, type)
   },
@@ -24,7 +26,7 @@ const kg = {
     return pic.getPic(songInfo)
   },
   getMusicDetailPageUrl(songInfo) {
-    return `https://www.kugou.com/song/#hash=${songInfo.hash}`
+    return `https://www.kugou.com/song/#hash=${songInfo.hash}&album_id=${songInfo.albumId}`
   },
   // getPic(songInfo) {
   //   return apis('kg').getPic(songInfo)

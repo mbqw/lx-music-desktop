@@ -8,6 +8,8 @@ const names = {
     clear_cache: 'clear_cache',
     get_cache_size: 'get_cache_size',
     get_env_params: 'get_env_params',
+    wait: 'wait',
+    wait_cancel: 'wait_cancel',
 
     set_music_meta: 'set_music_meta',
     progress: 'progress',
@@ -22,6 +24,7 @@ const names = {
     set_app_setting: 'set_app_setting',
     set_window_size: 'set_window_size',
     show_save_dialog: 'show_save_dialog',
+    get_system_fonts: 'get_system_fonts',
 
     handle_request: 'handle_request',
     cancel_request: 'cancel_request',
@@ -31,6 +34,8 @@ const names = {
     select_dir: 'select_dir',
 
     restart_window: 'restart_window',
+
+    lang_s2t: 'lang_s2t',
 
     handle_kw_decode_lyric: 'handle_kw_decode_lyric',
     get_lyric_info: 'get_lyric_info',
@@ -43,6 +48,37 @@ const names = {
     hide_toggle: 'hide_toggle',
     get_data_path: 'get_data_path',
     show_dialog: 'show_dialog',
+
+    get_setting: 'get_setting',
+    get_playlist: 'get_playlist',
+    save_playlist: 'save_playlist',
+    get_data: 'get_data',
+    save_data: 'save_data',
+    get_hot_key: 'get_hot_key',
+
+    import_user_api: 'import_user_api',
+    remove_user_api: 'remove_user_api',
+    set_user_api: 'set_user_api',
+    get_user_api_list: 'get_user_api_list',
+    request_user_api: 'request_user_api',
+    request_user_api_cancel: 'request_user_api_cancel',
+    get_user_api_status: 'get_user_api_status',
+    user_api_status: 'user_api_status',
+
+    get_lyric: 'get_lyric',
+    save_lyric: 'save_lyric',
+    clear_lyric: 'clear_lyric',
+    get_music_url: 'get_music_url',
+    save_music_url: 'save_music_url',
+    clear_music_url: 'clear_music_url',
+
+    sync_enable: 'sync_enable',
+    sync_status: 'sync_status',
+    sync_get_status: 'sync_get_status',
+    sync_generate_code: 'sync_generate_code',
+    sync_action_list: 'sync_action_list',
+    sync_list: 'sync_list',
+
   },
   winLyric: {
     close: 'close',

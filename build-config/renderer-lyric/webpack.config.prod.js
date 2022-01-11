@@ -1,17 +1,16 @@
 const path = require('path')
 const webpack = require('webpack')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { merge } = require('webpack-merge')
 
 const baseConfig = require('./webpack.config.base')
 
-const { mergeCSSLoaderProd } = require('../utils')
 const { dependencies } = require('../../package.json')
 
-let whiteListedModules = ['vue']
+// let whiteListedModules = ['vue']
+let whiteListedModules = ['vue', 'vue-router', 'vuex', 'vue-i18n']
 
 
 module.exports = merge(baseConfig, {
@@ -20,32 +19,6 @@ module.exports = merge(baseConfig, {
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d)),
   ],
-  module: {
-    rules: [
-      {
-        test: /\.css$/,
-        oneOf: mergeCSSLoaderProd(),
-      },
-      {
-        test: /\.less$/,
-        oneOf: mergeCSSLoaderProd({
-          loader: 'less-loader',
-          options: {
-            sourceMap: true,
-          },
-        }),
-      },
-      {
-        test: /\.styl(:?us)?$/,
-        oneOf: mergeCSSLoaderProd({
-          loader: 'stylus-loader',
-          options: {
-            sourceMap: true,
-          },
-        }),
-      },
-    ],
-  },
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
@@ -59,20 +32,14 @@ module.exports = merge(baseConfig, {
       'process.env': {
         NODE_ENV: '"production"',
       },
+      __VUE_OPTIONS_API__: 'true',
+      __VUE_PROD_DEVTOOLS__: 'false',
     }),
-    new MiniCssExtractPlugin({
-      filename: '[name].css',
-    }),
-    new webpack.NamedChunksPlugin(),
   ],
   optimization: {
     minimizer: [
-      new TerserPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: false, // set to true if you want JS source maps
-      }),
-      new OptimizeCSSAssetsPlugin({}),
+      new TerserPlugin(),
+      new CssMinimizerPlugin(),
     ],
   },
   performance: {

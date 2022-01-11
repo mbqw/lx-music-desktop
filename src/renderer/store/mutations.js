@@ -9,11 +9,11 @@ export default {
   setSetting(state, val) {
     state.setting = val
   },
-  setAgreePact(state) {
-    state.setting.isAgreePact = true
-  },
   setSettingVersion(state, val) {
     state.settingVersion = val
+  },
+  setAgreePact(state) {
+    state.setting.isAgreePact = true
   },
   setLeaderboard(state, { tabId, source }) {
     if (tabId != null) state.setting.leaderboard.tabId = tabId
@@ -23,21 +23,6 @@ export default {
     if (tagInfo != null) state.setting.songList.tagInfo = tagInfo
     if (sortId != null) state.setting.songList.sortId = sortId
     if (source != null) state.setting.songList.source = source
-  },
-  setNewVersion(state, val) {
-    state.version.newVersion = val
-  },
-  setDownloadProgress(state, info) {
-    state.version.downloadProgress = info
-  },
-  setVersionModalVisible(state, { isShow, isError, isDownloaded, isTimeOut, isDownloading, isUnknow, isLatestVer }) {
-    if (isError !== undefined) state.version.isError = isError
-    if (isTimeOut !== undefined) state.version.isTimeOut = isTimeOut
-    if (isDownloading !== undefined) state.version.isDownloading = isDownloading
-    if (isDownloaded !== undefined) state.version.isDownloaded = isDownloaded
-    if (isUnknow !== undefined) state.version.isUnknow = isUnknow
-    if (isLatestVer !== undefined) state.version.isLatestVer = isLatestVer
-    if (isShow !== undefined) state.version.showModal = isShow
   },
   setIgnoreVersion(state, version) {
     state.setting.ignoreVersion = version
@@ -49,13 +34,28 @@ export default {
       state.setting.player.volume = val
     }
   },
+  setPlayNextMode(state, val) {
+    state.setting.player.togglePlayMethod = val
+  },
+  setVisibleDesktopLyric(state, val) {
+    state.setting.desktopLyric.enable = val
+  },
+  setLockDesktopLyric(state, val) {
+    state.setting.desktopLyric.isLock = val
+  },
   setMediaDeviceId(state, val) {
     state.setting.player.mediaDeviceId = val
   },
-  setPrevSelectListId(state, val) {
-    state.setting.list.prevSelectListId = val
-  },
   setDesktopLyricConfig(state, config) {
     state.setting.desktopLyric = Object.assign(state.setting.desktopLyric, config)
+  },
+  setApiSource(state, apiSource) {
+    state.setting.apiSource = apiSource
+  },
+  setProxyEnable(state, val) {
+    state.setting.network.proxy.enable = val
+  },
+  setAudioVisualization(state, val) {
+    state.setting.player.audioVisualization = val
   },
 }

@@ -1,14 +1,5 @@
-import Store from 'electron-store'
 import music from '../../utils/music'
-
-const electronStore_data = window.electronStore_data = new Store({
-  name: 'data',
-})
-let historyList = electronStore_data.get('searchHistoryList')
-if (historyList == null) {
-  historyList = []
-  electronStore_data.set('searchHistoryList', historyList)
-}
+import { markRawList } from '@renderer/utils/vueTools'
 
 const sources = []
 const sourceList = {}
@@ -103,7 +94,7 @@ const state = {
   allPage: 1,
   total: 0,
   sourceMaxPage,
-  historyList,
+  historyList: [],
 }
 
 // getters
@@ -137,7 +128,7 @@ const actions = {
           }
         }))
       }
-      Promise.all(task).then(results => commit('setLists', { results, page }))
+      return Promise.all(task).then(results => commit('setLists', { results, page }))
     } else {
       return music[rootState.setting.search.searchSource].musicSearch.search(text, page, limit).catch(error => {
         console.log(error)
@@ -160,7 +151,7 @@ const mutations = {
   },
   setList(state, datas) {
     let source = state.sourceList[datas.source]
-    source.list = datas.list
+    source.list = markRawList(datas.list)
     source.total = datas.total
     source.allPage = datas.allPage
     source.page = datas.page
@@ -174,10 +165,10 @@ const mutations = {
     for (const source of results) {
       state.sourceMaxPage[source.source] = source.allPage
       if (source.allPage < page) continue
-      list.push(...source.list)
+      list.push(...markRawList(source.list))
       pages.push(source.allPage)
       total += source.total
-      limit += source.limit
+      // limit = Math.max(source.limit, limit)
     }
     state.allPage = Math.max(...pages)
     state.total = total
@@ -210,6 +201,9 @@ const mutations = {
   },
   clearHistory(state) {
     state.historyList = []
+  },
+  setHistory(state, list) {
+    state.historyList = list
   },
 }
 

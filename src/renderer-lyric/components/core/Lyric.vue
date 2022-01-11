@@ -1,17 +1,20 @@
 <template lang="pug">
-div(:class="[$style.lyric, lyricEvent.isMsDown ? $style.draging : null]" :style="lrcStyles" @wheel="handleWheel" @mousedown="handleLyricMouseDown" ref="dom_lyric")
+div(:class="[$style.lyric, { [$style.draging]: lyricEvent.isMsDown }, { [$style.lrcActiveZoom]: lrcConfig.style.isZoomActiveLrc } ]"
+  :style="lrcStyles" @wheel="handleWheel" @mousedown="handleLyricMouseDown" @touchstart="handleLyricTouchStart" ref="dom_lyric")
   div(:class="$style.lyricSpace")
-  div(v-for="(info, index) in lyricLines" :key="index" :class="[$style.lineContent, lyric.line == index ? (lrcConfig.style.isZoomActiveLrc ? $style.lrcActiveZoom : $style.lrcActive) : null]")
+  div(:class="[$style.lyricText]" ref="dom_lyric_text")
+  //- div(v-for="(info, index) in lyricLines" :key="index" :class="[$style.lineContent, lyric.line == index ? (lrcConfig.style.isZoomActiveLrc ? $style.lrcActiveZoom : $style.lrcActive) : null]")
     p(:class="$style.lrcLine") {{info.text}}
   div(:class="$style.lyricSpace")
 </template>
 
 <script>
-import { rendererOn, rendererSend, NAMES } from '../../../common/ipc'
-import { scrollTo } from '../../../renderer/utils'
-import Lyric from 'lrc-file-parser'
+import { rendererOn, rendererSend, NAMES } from '@common/ipc'
+import { scrollTo } from '@renderer/utils'
+import Lyric from '@renderer/utils/lyric-font-player'
 
 let cancelScrollFn = null
+let delayScrollTimeout
 
 export default {
   props: {
@@ -20,12 +23,21 @@ export default {
       default() {
         return {
           style: {
+            font: '',
             fontSize: 125,
             opacity: 80,
             isZoomActiveLrc: true,
           },
         }
       },
+    },
+    isPlayLxlrc: {
+      type: Boolean,
+      default: true,
+    },
+    isShowLyricTranslation: {
+      type: Boolean,
+      default: true,
     },
   },
   data() {
@@ -58,11 +70,17 @@ export default {
       lyricLines: [],
       isSetedLines: false,
       isPlay: false,
+      lyrics: {
+        lyric: '',
+        tlyric: '',
+        lxlyric: '',
+      },
     }
   },
   computed: {
     lrcStyles() {
       return {
+        fontFamily: this.lrcConfig.style.font,
         fontSize: this.lrcConfig.style.fontSize / 100 + 'rem',
         opacity: this.lrcConfig.style.opacity / 100,
       }
@@ -77,7 +95,7 @@ export default {
           if (n.length) {
             this.lyricLines = n
             this.$nextTick(() => {
-              this.dom_lines = this.$refs.dom_lyric.querySelectorAll('p')
+              this.dom_lines = this.$refs.dom_lyric.querySelectorAll('.lrc-content')
               this.handleScrollLrc()
             })
           } else {
@@ -89,7 +107,7 @@ export default {
               if (this.lyricLines === this._lyricLines && this._lyricLines.length) return
               this.lyricLines = this._lyricLines
               this.$nextTick(() => {
-                this.dom_lines = this.$refs.dom_lyric.querySelectorAll('p')
+                this.dom_lines = this.$refs.dom_lyric.querySelectorAll('.lrc-content')
                 this.handleScrollLrc()
               })
             }, 50)
@@ -97,7 +115,7 @@ export default {
         } else {
           this.lyricLines = n
           this.$nextTick(() => {
-            this.dom_lines = this.$refs.dom_lyric.querySelectorAll('p')
+            this.dom_lines = this.$refs.dom_lyric.querySelectorAll('.lrc-content')
             this.handleScrollLrc()
           })
         }
@@ -105,17 +123,34 @@ export default {
       immediate: true,
     },
     'lyric.line': {
-      handler(n) {
+      handler(n, o) {
         if (n < 0) return
         if (n == 0 && this.isSetedLines) return this.isSetedLines = false
-        this.handleScrollLrc()
+        if (o == null || n - o != 1) return this.handleScrollLrc()
+        delayScrollTimeout = setTimeout(() => {
+          delayScrollTimeout = null
+          this.handleScrollLrc(600)
+        }, 600)
       },
       immediate: true,
+    },
+    isShowLyricTranslation() {
+      this.setLyric()
+      rendererSend(NAMES.winLyric.get_lyric_info, 'status')
+    },
+    isPlayLxlrc() {
+      this.setLyric()
+      rendererSend(NAMES.winLyric.get_lyric_info, 'status')
     },
   },
   created() {
     rendererOn(NAMES.winLyric.set_lyric_info, (event, data) => this.handleSetInfo(data))
     window.lrc = new Lyric({
+      lineClassName: 'lrc-content',
+      fontClassName: 'font',
+      shadowClassName: 'shadow',
+      shadowContent: true,
+      activeLineClassName: 'active',
       onPlay: (line, text) => {
         this.lyric.text = text
         this.lyric.line = line
@@ -123,6 +158,12 @@ export default {
       },
       onSetLyric: lines => { // listening lyrics seting event
         // console.log(lines) // lines is array of all lyric text
+        this.$refs.dom_lyric_text.textContent = ''
+        const dom_lines = document.createDocumentFragment()
+        for (const line of lines) {
+          dom_lines.appendChild(line.dom_line)
+        }
+        this.$refs.dom_lyric_text.appendChild(dom_lines)
         this.lyric.lines = lines
         this.lyric.line = 0
       },
@@ -132,19 +173,26 @@ export default {
   mounted() {
     document.addEventListener('mousemove', this.handleMouseMsMove)
     document.addEventListener('mouseup', this.handleMouseMsUp)
+    document.addEventListener('touchmove', this.handleTouchMove)
+    document.addEventListener('touchend', this.handleMouseMsUp)
     rendererSend(NAMES.winLyric.get_lyric_info, 'info')
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.clearLyricScrollTimeout()
     document.removeEventListener('mousemove', this.handleMouseMsMove)
     document.removeEventListener('mouseup', this.handleMouseMsUp)
+    document.removeEventListener('touchmove', this.handleTouchMove)
+    document.removeEventListener('touchend', this.handleMouseMsUp)
   },
   methods: {
     handleSetInfo({ type, data }) {
       // console.log(type, data)
       switch (type) {
         case 'lyric':
-          window.lrc.setLyric(data)
+          this.lyrics.lyric = data.lrc
+          this.lyrics.tlyric = data.tlrc
+          this.lyrics.lxlyric = data.lxlrc
+          this.setLyric()
           break
         case 'play':
           this.isPlay = true
@@ -156,7 +204,10 @@ export default {
           break
         case 'info':
           // console.log('info', data)
-          window.lrc.setLyric(data.lyric)
+          this.lyrics.lyric = data.lrc
+          this.lyrics.tlyric = data.tlrc
+          this.lyrics.lxlyric = data.lxlrc
+          this.setLyric()
           this.$nextTick(() => {
             this.lyric.line = data.line
             rendererSend(NAMES.winLyric.get_lyric_info, 'status')
@@ -183,7 +234,7 @@ export default {
     handleResize() {
       this.setProgressWidth()
     },
-    handleScrollLrc() {
+    handleScrollLrc(duration = 300) {
       if (!this.dom_lines.length) return
       if (cancelScrollFn) {
         cancelScrollFn()
@@ -191,48 +242,65 @@ export default {
       }
       if (this.lyricEvent.isStopScroll) return
       let dom_p = this.dom_lines[this.lyric.line]
-      cancelScrollFn = scrollTo(this.$refs.dom_lyric, dom_p ? (dom_p.offsetTop - this.$refs.dom_lyric.clientHeight * 0.38) : 0)
+      cancelScrollFn = scrollTo(this.$refs.dom_lyric, dom_p ? (dom_p.offsetTop - this.$refs.dom_lyric.clientHeight * 0.5 + dom_p.clientHeight / 2) : 0, duration)
     },
-    handleLyricMouseDown(e) {
-      if (e.target.classList.contains(this.$style.lrcLine)) {
+    handleLyricDown(target, x, y) {
+      if (target.classList.contains('font') ||
+        target.parentNode.classList.contains('font') ||
+        target.classList.contains('translation') ||
+        target.parentNode.classList.contains('translation')) {
         this.lyricEvent.isMsDown = true
-        this.lyricEvent.msDownY = e.clientY
+        this.lyricEvent.msDownY = y
         this.lyricEvent.msDownScrollY = this.$refs.dom_lyric.scrollTop
       } else {
+        if (delayScrollTimeout) {
+          clearTimeout(delayScrollTimeout)
+          delayScrollTimeout = null
+        }
         this.winEvent.isMsDown = true
-        this.winEvent.msDownX = e.clientX
-        this.winEvent.msDownY = e.clientY
+        this.winEvent.msDownX = x
+        this.winEvent.msDownY = y
+      }
+    },
+    handleLyricMouseDown(e) {
+      this.handleLyricDown(e.target, e.clientX, e.clientY)
+    },
+    handleLyricTouchStart(e) {
+      if (e.changedTouches.length) {
+        const touch = e.changedTouches[0]
+        this.handleLyricDown(e.target, touch.clientX, touch.clientY)
       }
     },
     handleMouseMsUp(e) {
       this.lyricEvent.isMsDown = false
       this.winEvent.isMsDown = false
     },
-    handleMouseMsMove(e) {
+    handleMove(x, y) {
       if (this.lyricEvent.isMsDown) {
         if (!this.lyricEvent.isStopScroll) this.lyricEvent.isStopScroll = true
         if (cancelScrollFn) {
           cancelScrollFn()
           cancelScrollFn = null
         }
-        this.$refs.dom_lyric.scrollTop = this.lyricEvent.msDownScrollY + this.lyricEvent.msDownY - e.clientY
+        this.$refs.dom_lyric.scrollTop = this.lyricEvent.msDownScrollY + this.lyricEvent.msDownY - y
         this.startLyricScrollTimeout()
       } else if (this.winEvent.isMsDown) {
         rendererSend(NAMES.winLyric.set_win_bounds, {
-          x: e.clientX - this.winEvent.msDownX,
-          y: e.clientY - this.winEvent.msDownY,
+          x: x - this.winEvent.msDownX,
+          y: y - this.winEvent.msDownY,
           w: window.innerWidth,
           h: window.innerHeight,
         })
       }
-
-      // if (this.volumeEvent.isMsDown) {
-      //   let val = this.volumeEvent.msDownValue + (e.clientX - this.volumeEvent.msDownX) / 70
-      //   this.volume = val < 0 ? 0 : val > 1 ? 1 : val
-      //   if (this.audio) this.audio.volume = this.volume
-      // }
-
-      // console.log(val)
+    },
+    handleTouchMove(e) {
+      if (e.changedTouches.length) {
+        const touch = e.changedTouches[0]
+        this.handleMove(touch.clientX, touch.clientY)
+      }
+    },
+    handleMouseMsMove(e) {
+      this.handleMove(e.clientX, e.clientY)
     },
     startLyricScrollTimeout() {
       this.clearLyricScrollTimeout()
@@ -261,45 +329,112 @@ export default {
     close() {
       rendererSend(NAMES.winLyric.close)
     },
+    setLyric() {
+      window.lrc.setLyric(
+        this.isPlayLxlrc && this.lyrics.lxlyric ? this.lyrics.lxlyric : this.lyrics.lyric,
+        this.isShowLyricTranslation && this.lyrics.tlyric ? this.lyrics.tlyric : '',
+        // (this.isShowLyricTranslation && this.lyrics.tlyric ? (this.lyrics.tlyric + '\n') : '') + (this.lyrics.lyric || ''),
+      )
+    },
   },
 }
 </script>
 
 <style lang="less" module>
-@import '../../assets/styles/layout.less';
+@import '@lyric/assets/styles/layout.less';
 
 .lyric {
   text-align: center;
   height: 100%;
   overflow: hidden;
-  font-size: 68px;
-  padding: 0 5px;
-  opacity: .6;
-  transition: opacity @transition-theme;
-  &.draging {
-    .lrc-line {
-      cursor: grabbing;
+  font-size: 16px;
+  color: @color-theme-lyric;
+  contain: strict;
+  cursor: move;
+
+  :global {
+    .lrc-content {
+      line-height: 1.2;
+      margin: 16px 0;
+      overflow-wrap: break-word;
+
+      .font {
+        display: inline-block;
+      }
+
+      .font, .translation {
+        cursor: grab;
+      }
+
+      .translation {
+        transition: @transition-theme !important;
+        transition-property: font-size, color;
+        font-size: 0.8em;
+        margin-top: 5px;
+      }
+
+      .line {
+        transition-property: font-size, color !important;
+        background: none !important;
+        -webkit-text-fill-color: unset;
+        // -webkit-text-fill-color: none !important;
+      }
+      &.active {
+        .line {
+          color: @color-theme;
+        }
+        .translation {
+          color: @color-theme;
+        }
+        // span {
+          // color: @color-theme;
+        // }
+      }
+
+
+      span {
+        transition: @transition-theme !important;
+        transition-property: font-size !important;
+        font-size: 1em;
+        background-repeat: no-repeat;
+        background-color: @color-theme-lyric;
+        background-image: -webkit-linear-gradient(top, @color-theme, @color-theme);
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        background-size: 0 100%;
+      }
+    }
+
+    .shadow {
+      text-shadow: 1px 1px 2px rgb(32, 32, 32);
     }
   }
+  // p {
+  //   padding: 8px 0;
+  //   line-height: 1.2;
+  //   overflow-wrap: break-word;
+  //   transition: @transition-theme !important;
+  //   transition-property: color, font-size;
+  // }
 }
-.lrc-line {
-  display: inline-block;
-  padding: 8px 0;
-  line-height: 1.2;
-  overflow-wrap: break-word;
-  transition: @transition-theme;
-  transition-property: color, font-size, text-shadow;
-  cursor: grab;
-  // font-weight: bold;
-  // background-clip: text;
-  color: @color-theme-lyric;
-  text-shadow: 1px 1px 2px #000;
-  // background: linear-gradient(@color-theme-lyric, @color-theme-lyric);
-  // background-clip: text;
-  // -webkit-background-clip: text;
-  // -webkit-text-fill-color: #fff;
-  // -webkit-text-stroke: thin #124628;
-}
+// .lrc-line {
+//   display: inline-block;
+//   padding: 8px 0;
+//   line-height: 1.2;
+//   overflow-wrap: break-word;
+//   transition: @transition-theme;
+//   transition-property: color, font-size, text-shadow;
+//   cursor: grab;
+//   // font-weight: bold;
+//   // background-clip: text;
+//   color: @color-theme-lyric;
+//   text-shadow: 1px 1px 2px #000;
+//   // background: linear-gradient(@color-theme-lyric, @color-theme-lyric);
+//   // background-clip: text;
+//   // -webkit-background-clip: text;
+//   // -webkit-text-fill-color: #fff;
+//   // -webkit-text-stroke: thin #124628;
+// }
 .lyric-space {
   height: 70%;
 }
@@ -314,9 +449,28 @@ export default {
     // -webkit-text-stroke: thin #124628;
   }
 }
+.draging {
+  :global {
+    .lrc-content {
+      .font, .translation {
+        cursor: grabbing;
+      }
+    }
+  }
+}
 .lrc-active-zoom {
-  .lrc-active;
-  font-size: 1.2em;
+  :global {
+    .lrc-content {
+      &.active {
+        .translation {
+          font-size: .94em;
+        }
+        span {
+          font-size: 1.2em;
+        }
+      }
+    }
+  }
 }
 .footer {
   flex: 0 0 100px;
@@ -328,12 +482,31 @@ export default {
 
 each(@themes, {
   :global(#container.@{value}) {
-    .lrc-line {
-      color: ~'@{color-@{value}-theme-lyric}';
-    }
+    // .lrc-line {
+    //   color: ~'@{color-@{value}-theme-lyric}';
+    // }
     .lrc-active, .lrc-active-zoom {
       .lrc-line {
         color: ~'@{color-@{value}-theme-lyric_2}';
+      }
+    }
+    .lyric {
+      color: ~'@{color-@{value}-theme-lyric}';
+      :global {
+        .lrc-content {
+          &.active {
+            .translation {
+              color: ~'@{color-@{value}-theme}';
+            }
+            .line {
+              color: ~'@{color-@{value}-theme}';
+            }
+          }
+          span {
+            // background-color: ~'@{color-@{value}-theme_2-font}';
+            background-image: -webkit-linear-gradient(top, ~'@{color-@{value}-theme}', ~'@{color-@{value}-theme}');
+          }
+        }
       }
     }
   }

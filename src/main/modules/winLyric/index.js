@@ -1,6 +1,8 @@
+const path = require('path')
 const { BrowserWindow } = require('electron')
 const { winLyric: WIN_LYRIC_EVENT_NAME } = require('../../events/_name')
-const { debounce } = require('../../../common/utils')
+const { debounce, isLinux } = require('../../../common/utils')
+const { getLyricWindowBounds } = require('./utils')
 
 require('./event')
 require('./rendererEvent')
@@ -12,20 +14,20 @@ global.lx_event.winLyric.on(WIN_LYRIC_EVENT_NAME.close, () => {
   closeWindow()
 })
 
-let winURL = global.isDev ? 'http://localhost:9081/lyric.html' : `file://${__dirname}/lyric.html`
+let winURL = global.isDev ? 'http://localhost:9081/lyric.html' : `file://${path.join(__dirname, 'lyric.html')}`
 
 const setLyricsConfig = debounce(config => {
   // if (x != null) bounds.x = x
   // if (y != null) bounds.y = y
   // if (width != null) bounds.width = width
   // if (height != null) bounds.height = height
-  global.lx_event.common.setAppConfig({ desktopLyric: config }, WIN_LYRIC_EVENT_NAME.name)
+  global.lx_core.setAppConfig({ desktopLyric: config }, WIN_LYRIC_EVENT_NAME.name)
 }, 500)
 
 const winEvent = lyricWindow => {
   // let bounds
   // lyricWindow.on('close', event => {
-  //   if (global.isQuitting || !global.appSetting.tray.isToTray || (!isWin && !global.isTrafficLightClose)) {
+  //   if (global.isQuitting || !global.appSetting.tray.isShow || (!isWin && !global.isTrafficLightClose)) {
   //     lyricWindow.setProgressBar(-1)
   //     return
   //   }
@@ -64,30 +66,38 @@ const winEvent = lyricWindow => {
     if (global.appSetting.desktopLyric.isLock) {
       global.modules.lyricWindow.setIgnoreMouseEvents(true, { forward: false })
     }
+    // linux下每次重开时貌似要重新设置置顶
+    if (isLinux && global.appSetting.desktopLyric.isAlwaysOnTop) {
+      global.modules.lyricWindow.setAlwaysOnTop(global.appSetting.desktopLyric.isAlwaysOnTop, 'screen-saver')
+    }
   })
 }
 
-let offset = 8
 const createWindow = () => {
   if (global.modules.lyricWindow) return
   if (!global.appSetting.desktopLyric.enable) return
   // const windowSizeInfo = getWindowSizeInfo(global.appSetting)
   let { x, y, width, height, isAlwaysOnTop } = global.appSetting.desktopLyric
   let { width: screenWidth, height: screenHeight } = global.envParams.workAreaSize
-  screenWidth += offset * 2
-  screenHeight += offset * 2
   if (x == null) {
-    x = screenWidth - width - offset
-    y = screenHeight - height - offset
+    x = screenWidth - width
+    y = screenHeight - height
+  }
+  if (global.appSetting.desktopLyric.isLockScreen) {
+    let bounds = getLyricWindowBounds({ x, y, width, height }, { x: null, y: null, w: width, h: height })
+    x = bounds.x
+    y = bounds.y
+    width = bounds.width
+    height = bounds.height
   }
   /**
    * Initial window options
    */
   global.modules.lyricWindow = new BrowserWindow({
-    height: Math.max(height > screenHeight ? screenHeight : height, 80),
-    width: Math.max(width > screenWidth ? screenWidth : width, 380),
-    x: Math.max(-offset, screenWidth < (width + x) ? screenWidth - width : x),
-    y: Math.max(-offset, screenHeight < (height + y) ? screenHeight - height : y),
+    height,
+    width,
+    x,
+    y,
     minWidth: 380,
     minHeight: 80,
     useContentSize: true,
@@ -103,9 +113,10 @@ const createWindow = () => {
     alwaysOnTop: isAlwaysOnTop,
     skipTaskbar: true,
     webPreferences: {
-      // contextIsolation: true,
+      contextIsolation: false,
       webSecurity: !global.isDev,
       nodeIntegration: true,
+      spellcheck: false, // 禁用拼写检查器
     },
   })
 

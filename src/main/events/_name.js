@@ -1,6 +1,7 @@
 exports.common = {
   initConfig: 'initConfig',
-  config: 'config',
+  configStatus: 'config',
+  saveMyList: 'saveMyList',
 }
 
 exports.mainWindow = {
@@ -10,6 +11,9 @@ exports.mainWindow = {
   quit: 'quit',
   toggle_minimize: 'toggle_minimize',
   toggle_hide: 'toggle_hide',
+  ready_to_show: 'ready_to_show',
+  show: 'show',
+  hide: 'hide',
 }
 
 exports.tray = {

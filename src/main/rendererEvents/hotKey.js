@@ -1,5 +1,8 @@
-const { mainSend, NAMES: { mainWindow: ipcMainWindowNames }, mainOn } = require('../../common/ipc')
+const { mainSend, NAMES: { mainWindow: ipcMainWindowNames }, mainOn, mainHandle } = require('../../common/ipc')
 const { mainWindow: MAIN_WINDOW_EVENT_NAME, hotKey: HOT_KEY_EVENT_NAME } = require('../events/_name')
+const getStore = require('@common/store')
+
+
 // const { registerHotkey, unRegisterHotkey } = require('../modules/hotKey/utils')
 
 // mainHandle(ipcMainWindowNames.set_hot_key_config, async(event, { action, data }) => {
@@ -13,6 +16,14 @@ const { mainWindow: MAIN_WINDOW_EVENT_NAME, hotKey: HOT_KEY_EVENT_NAME } = requi
 //       return unRegisterHotkey(data)
 //   }
 // })
+
+mainHandle(ipcMainWindowNames.get_hot_key, async() => {
+  const electronStore_hotKey = getStore('hotKey')
+  return {
+    local: electronStore_hotKey.get('local'),
+    global: electronStore_hotKey.get('global'),
+  }
+})
 
 mainOn(ipcMainWindowNames.quit, () => global.lx_event.mainWindow.quit())
 mainOn(ipcMainWindowNames.min_toggle, () => global.lx_event.mainWindow.toggleMinimize())

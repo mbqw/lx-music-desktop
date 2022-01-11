@@ -2,62 +2,19 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const cssLoaderConfig = require('./css-loader.config')
 const chalk = require('chalk')
 
-// merge css-loader in development
-exports.mergeCSSLoaderDev = beforeLoader => {
+// merge css-loader
+exports.mergeCSSLoader = beforeLoader => {
   const loader = [
     // 这里匹配 `<style module>`
     {
       resourceQuery: /module/,
       use: [
-        'vue-style-loader',
         {
-          loader: 'css-loader',
-          options: Object.assign({
-            sourceMap: true,
-          }, cssLoaderConfig),
-        },
-        {
-          loader: 'postcss-loader',
+          loader: MiniCssExtractPlugin.loader,
           options: {
-            sourceMap: true,
+            esModule: false,
           },
         },
-      ],
-    },
-    // 这里匹配普通的 `<style>` 或 `<style scoped>`
-    {
-      use: [
-        'vue-style-loader',
-        {
-          loader: 'css-loader',
-          options: {
-            sourceMap: true,
-          },
-        },
-        {
-          loader: 'postcss-loader',
-          options: {
-            sourceMap: true,
-          },
-        },
-      ],
-    },
-  ]
-  if (beforeLoader) {
-    loader[0].use.push(beforeLoader)
-    loader[1].use.push(beforeLoader)
-  }
-  return loader
-}
-
-// merge css-loader in production
-exports.mergeCSSLoaderProd = beforeLoader => {
-  const loader = [
-    // 这里匹配 `<style module>`
-    {
-      resourceQuery: /module/,
-      use: [
-        MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader',
           options: cssLoaderConfig,
@@ -68,7 +25,12 @@ exports.mergeCSSLoaderProd = beforeLoader => {
     // 这里匹配普通的 `<style>` 或 `<style scoped>`
     {
       use: [
-        MiniCssExtractPlugin.loader,
+        {
+          loader: MiniCssExtractPlugin.loader,
+          options: {
+            esModule: false,
+          },
+        },
         'css-loader',
         'postcss-loader',
       ],

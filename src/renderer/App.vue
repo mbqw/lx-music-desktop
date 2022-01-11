@@ -1,344 +1,51 @@
 <template lang="pug">
-#container(v-if="isProd && !isNt" :class="theme" @mouseenter="enableIgnoreMouseEvents" @mouseleave="dieableIgnoreMouseEvents")
+#container
   core-aside#left
   #right
     core-toolbar#toolbar
-    core-view#view
-    core-player#player
+    #view
+      core-view#view-container
+    core-play-bar#player
   core-icons
-  material-xm-verify-modal(v-show="globalObj.xm.isShowVerify" :show="globalObj.xm.isShowVerify" :bg-close="false" @close="handleXMVerifyModalClose")
-  material-version-modal(v-show="version.showModal")
-  material-pact-modal(v-show="!setting.isAgreePact || globalObj.isShowPact")
-#container(v-else :class="theme")
-  core-aside#left
-  #right
-    core-toolbar#toolbar
-    core-view#view
-    core-player#player
-  core-icons
-  material-xm-verify-modal(v-show="globalObj.xm.isShowVerify" :show="globalObj.xm.isShowVerify" :bg-close="false" @close="handleXMVerifyModalClose")
-  material-version-modal(v-show="version.showModal")
-  material-pact-modal(v-show="!setting.isAgreePact || globalObj.isShowPact")
+  core-version-modal
+  core-pact-modal
+  core-sync-mode-modal
+  core-play-detail
 </template>
 
 <script>
-import dnscache from 'dnscache'
-import { mapMutations, mapGetters, mapActions } from 'vuex'
-import { rendererOn, rendererSend, rendererInvoke, NAMES } from '../common/ipc'
-import { isLinux } from '../common/utils'
-import music from './utils/music'
-import { throttle, openUrl, compareVer } from './utils'
-import { base as eventBaseName } from './event/names'
-
-window.ELECTRON_DISABLE_SECURITY_WARNINGS = process.env.ELECTRON_DISABLE_SECURITY_WARNINGS
-dnscache({
-  enable: true,
-  ttl: 21600,
-  cachesize: 1000,
-})
+import { useRefGetter, watch, onMounted } from '@renderer/utils/vueTools'
+import useApp from '@renderer/core/useApp'
 
 export default {
-  data() {
-    return {
-      isProd: process.env.NODE_ENV === 'production',
-      isNt: false,
-      globalObj: {
-        apiSource: 'test',
-        proxy: {},
-        isShowPact: false,
-        qualityList: {},
-        xm: {
-          isShowVerify: false,
-        },
-      },
-      updateTimeout: null,
-      envParams: {
-        nt: false,
-      },
-    }
-  },
-  computed: {
-    ...mapGetters(['setting', 'theme', 'version', 'windowSizeActive']),
-    ...mapGetters('list', ['defaultList', 'loveList', 'userList']),
-    ...mapGetters('download', {
-      downloadList: 'list',
-      downloadStatus: 'downloadStatus',
-    }),
-    ...mapGetters('search', {
-      searchHistoryList: 'historyList',
-    }),
-  },
-  created() {
-    this.saveDefaultList = throttle(n => {
-      window.electronStore_list.set('defaultList', n)
-    }, 500)
-    this.saveLoveList = throttle(n => {
-      window.electronStore_list.set('loveList', n)
-    }, 500)
-    this.saveUserList = throttle(n => {
-      window.electronStore_list.set('userList', n)
-    }, 500)
-    this.saveDownloadList = throttle(n => {
-      window.electronStore_list.set('downloadList', n)
-    }, 1000)
-    this.saveSearchHistoryList = throttle(n => {
-      window.electronStore_data.set('searchHistoryList', n)
-    }, 500)
-  },
-  mounted() {
-    document.body.classList.add(this.isNt ? 'noTransparent' : 'transparent')
-    window.eventHub.$emit(eventBaseName.bindKey)
-    this.init()
-  },
-  watch: {
-    setting: {
-      handler(n, o) {
-        rendererSend(NAMES.mainWindow.set_app_setting, n)
-      },
-      deep: true,
-    },
-    defaultList: {
-      handler(n) {
-        this.saveDefaultList(n)
-      },
-      deep: true,
-    },
-    loveList: {
-      handler(n) {
-        this.saveLoveList(n)
-      },
-      deep: true,
-    },
-    userList: {
-      handler(n) {
-        this.saveUserList(n)
-      },
-      deep: true,
-    },
-    downloadList: {
-      handler(n) {
-        this.saveDownloadList(n)
-      },
-      deep: true,
-    },
-    searchHistoryList(n) {
-      this.saveSearchHistoryList(n)
-    },
-    'globalObj.apiSource'(n) {
-      this.globalObj.qualityList = music.supportQuality[n]
-      if (n != this.setting.apiSource) {
-        this.setSetting(Object.assign({}, this.setting, {
-          apiSource: n,
-        }))
-      }
-    },
-    'windowSizeActive.fontSize'(n) {
-      document.documentElement.style.fontSize = n
-    },
-  },
-  methods: {
-    ...mapActions(['getVersionInfo']),
-    ...mapMutations(['setNewVersion', 'setVersionModalVisible', 'setDownloadProgress', 'setSetting', 'setDesktopLyricConfig']),
-    ...mapMutations('list', ['initList']),
-    ...mapMutations('download', ['updateDownloadList']),
-    init() {
-      document.documentElement.style.fontSize = this.windowSizeActive.fontSize
+  setup() {
+    const theme = useRefGetter('theme')
 
-      rendererInvoke(NAMES.mainWindow.get_env_params).then(this.handleEnvParamsInit)
+    const dom_root = document.getElementById('root')
 
-      document.body.addEventListener('click', this.handleBodyClick, true)
-      rendererOn(NAMES.mainWindow.update_available, (e, info) => {
-        // this.showUpdateModal(true)
-        // console.log(info)
-        this.setVersionModalVisible({ isDownloading: true })
-        this.getVersionInfo().catch(() => ({
-          version: info.version,
-          desc: info.releaseNotes,
-        })).then(body => {
-          // console.log(body)
-          this.setNewVersion(body)
-          this.$nextTick(() => {
-            this.setVersionModalVisible({ isShow: true })
-          })
-        })
-      })
-      rendererOn(NAMES.mainWindow.update_error, (event, err) => {
-        // console.log(err)
-        this.clearUpdateTimeout()
-        this.setVersionModalVisible({ isError: true })
-        this.$nextTick(() => {
-          this.showUpdateModal()
-        })
-      })
-      rendererOn(NAMES.mainWindow.update_progress, (event, progress) => {
-        // console.log(progress)
-        this.setDownloadProgress(progress)
-      })
-      rendererOn(NAMES.mainWindow.update_downloaded, info => {
-        // console.log(info)
-        this.clearUpdateTimeout()
-        this.setVersionModalVisible({ isDownloaded: true })
-        this.$nextTick(() => {
-          this.showUpdateModal()
-        })
-      })
-      rendererOn(NAMES.mainWindow.update_not_available, (event, info) => {
-        this.clearUpdateTimeout()
-        this.setNewVersion({
-          version: info.version,
-          desc: info.releaseNotes,
-        })
-        this.setVersionModalVisible({ isLatestVer: true })
-      })
+    watch(theme, (val) => {
+      dom_root.className = val
+    })
+    dom_root.className = theme.value
 
-      rendererOn(NAMES.mainWindow.set_config, (event, config) => {
-        // console.log(config)
-        // this.setDesktopLyricConfig(config)
-        // console.log('set_config', JSON.stringify(this.setting) === JSON.stringify(config))
-        this.setSetting(Object.assign({}, this.setting, config))
-        window.eventHub.$emit(eventBaseName.set_config, config)
-      })
-      // 更新超时定时器
-      this.updateTimeout = setTimeout(() => {
-        this.updateTimeout = null
-        this.setVersionModalVisible({ isTimeOut: true })
-        this.$nextTick(() => {
-          this.showUpdateModal()
-        })
-      }, 60 * 30 * 1000)
+    useApp()
 
-      this.listenEvent()
-      this.initData()
-      this.globalObj.apiSource = this.setting.apiSource
-      this.globalObj.qualityList = music.supportQuality[this.setting.apiSource]
-      this.globalObj.proxy = Object.assign({}, this.setting.network.proxy)
-      window.globalObj = this.globalObj
-
-      // 初始化音乐sdk
-      music.init()
-    },
-    enableIgnoreMouseEvents() {
-      if (this.isNt) return
-      rendererSend(NAMES.mainWindow.set_ignore_mouse_events, false)
-      // console.log('content enable')
-    },
-    dieableIgnoreMouseEvents() {
-      if (this.isNt) return
-      // console.log('content disable')
-      rendererSend(NAMES.mainWindow.set_ignore_mouse_events, true)
-    },
-
-    initData() { // 初始化数据
-      this.initPlayList() // 初始化播放列表
-      this.initDownloadList() // 初始化下载列表
-    },
-    initPlayList() {
-      let defaultList = window.electronStore_list.get('defaultList') || this.defaultList
-      let loveList = window.electronStore_list.get('loveList') || this.loveList
-      let userList = window.electronStore_list.get('userList') || this.userList
-      if (!defaultList.list) defaultList.list = []
-      if (!loveList.list) loveList.list = []
-      this.initList({ defaultList, loveList, userList })
-    },
-    initDownloadList() {
-      let downloadList = window.electronStore_list.get('downloadList')
-      if (downloadList) {
-        downloadList.forEach(item => {
-          if (item.status == this.downloadStatus.RUN || item.status == this.downloadStatus.WAITING) {
-            item.status = this.downloadStatus.PAUSE
-            item.statusText = '暂停下载'
-          }
+    onMounted(() => {
+      // 隐藏等待界面
+      /* inited.value = true
+      const dom_mask = document.getElementById('waiting-mask')
+      if (dom_mask) {
+        dom_mask.addEventListener('transitionend', () => {
+          dom_mask.parentNode.removeChild(dom_mask)
         })
-        this.updateDownloadList(downloadList)
-      }
-    },
-    showUpdateModal() {
-      (this.version.newVersion && this.version.newVersion.history
-        ? Promise.resolve(this.version.newVersion)
-        : this.getVersionInfo().then(body => {
-          this.setNewVersion(body)
-          return body
-        })
-      ).catch(() => {
-        if (this.version.newVersion) return this.version.newVersion
-        this.setVersionModalVisible({ isUnknow: true })
-        let result = {
-          version: '0.0.0',
-          desc: null,
-        }
-        this.setNewVersion(result)
-        return result
-      }).then(result => {
-        if (result.version == '0.0.0') return this.setVersionModalVisible({ isUnknow: true, isShow: true })
-        if (compareVer(this.version.version, result.version) != -1) return this.setVersionModalVisible({ isLatestVer: true })
-
-        if (result.version === this.setting.ignoreVersion) return
-        // console.log(this.version)
-        this.$nextTick(() => {
-          this.setVersionModalVisible({ isShow: true })
-        })
-      })
-    },
-    clearUpdateTimeout() {
-      if (!this.updateTimeout) return
-      clearTimeout(this.updateTimeout)
-      this.updateTimeout = null
-    },
-    handleBodyClick(event) {
-      if (event.target.tagName != 'A') return
-      if (event.target.host == window.location.host) return
-      event.preventDefault()
-      if (/^https?:\/\//.test(event.target.href)) openUrl(event.target.href)
-    },
-    handleEnvParamsInit(envParams) {
-      this.envParams = envParams
-      this.isNt = isLinux || this.envParams.nt
-      if (this.isNt) {
-        document.body.classList.remove('transparent')
-        document.body.classList.add('noTransparent')
-      }
-      if (this.isProd && !this.isNt) {
-        document.body.addEventListener('mouseenter', this.dieableIgnoreMouseEvents)
-        document.body.addEventListener('mouseleave', this.enableIgnoreMouseEvents)
-      }
-
-      if (this.envParams.search != null) {
-        this.$router.push({
-          path: 'search',
-          query: {
-            text: this.envParams.search,
-          },
-        })
-      }
-    },
-    handleXMVerifyModalClose() {
-      music.xm.closeVerifyModal()
-    },
-    listenEvent() {
-      window.eventHub.$on('key_escape_down', this.handle_key_esc_down)
-    },
-    unlistenEvent() {
-      window.eventHub.$off('key_escape_down', this.handle_key_esc_down)
-    },
-    handle_key_esc_down({ event }) {
-      if (event.repeat) return
-      if (event.target.tagName != 'INPUT' || event.target.classList.contains('ignore-esc')) return
-      event.target.value = ''
-      event.target.blur()
-    },
-  },
-  beforeDestroy() {
-    this.clearUpdateTimeout()
-    this.unlistenEvent()
-    if (this.isProd) {
-      document.body.removeEventListener('mouseenter', this.dieableIgnoreMouseEvents)
-      document.body.removeEventListener('mouseleave', this.enableIgnoreMouseEvents)
-    }
-    document.body.removeEventListener('click', this.handleBodyClick)
-    window.eventHub.$emit(eventBaseName.unbindKey)
+        dom_mask.classList.add('hide')
+      } */
+      dom_root.style.display = 'block'
+    })
   },
 }
 </script>
+
 
 <style lang="less">
 @import './assets/styles/index.less';
@@ -353,29 +60,58 @@ body {
   height: 100vh;
   box-sizing: border-box;
 }
-
-.transparent {
-  padding: @shadow-app;
-  #container {
-    box-shadow: 0 0 @shadow-app rgba(0, 0, 0, 0.5);
-    border-radius: @radius-border;
-    background-color: transparent;
-  }
-}
-.noTransparent {
-  background-color: #fff;
-}
-
-#container {
-  position: relative;
-  display: flex;
+#root {
   height: 100%;
+  position: relative;
   overflow: hidden;
   color: @color-theme_2-font;
   background: @color-theme-bgimg @color-theme-bgposition no-repeat;
   background-size: @color-theme-bgsize;
   transition: background-color @transition-theme;
   background-color: @color-theme;
+}
+
+.disableAnimation * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.transparent {
+  padding: @shadow-app;
+  #waiting-mask {
+    border-radius: @radius-border;
+    left: @shadow-app;
+    right: @shadow-app;
+    top: @shadow-app;
+    bottom: @shadow-app;
+  }
+  #root {
+    box-shadow: 0 0 @shadow-app rgba(0, 0, 0, 0.5);
+    border-radius: @radius-border;
+    background-color: transparent;
+  }
+  #container {
+    border-radius: @radius-border;
+    background-color: transparent;
+  }
+}
+.disableTransparent {
+  background-color: #fff;
+
+  #right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  #view { // 偏移5px距离解决非透明模式下右侧滚动条无法拖动的问题
+    margin-right: 5Px;
+  }
+}
+
+#container {
+  position: relative;
+  display: flex;
+  height: 100%;
 }
 
 #left {
@@ -398,12 +134,17 @@ body {
   flex: none;
 }
 #view {
+  position: relative;
   flex: auto;
-  height: 0;
+  display: flex;
+  min-height: 0;
+}
+#view-container {
+  flex: auto;
 }
 
 each(@themes, {
-  #container.@{value} {
+  #root.@{value} {
     color: ~'@{color-@{value}-theme_2-font}';
     background-color: ~'@{color-@{value}-theme}';
     background-image: ~'@{color-@{value}-theme-bgimg}';
